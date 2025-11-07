@@ -1,0 +1,298 @@
+generator client {
+  provider = "prisma-client-js"
+  //output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model branches {
+  id         Int         @id @default(autoincrement())
+  name       String      @db.VarChar(100)
+  address    String      @db.VarChar(255)
+  phone      String?     @db.VarChar(20)
+  email      String?     @unique @db.VarChar(100)
+  created_at DateTime    @default(now()) @db.Timestamp(6)
+  updated_at DateTime    @default(now()) @db.Timestamp(6)
+  employees  employees[]
+}
+
+model customer {
+  id            Int             @id @default(autoincrement())
+  user_id       Int?            @unique
+  address       String?         @db.VarChar(255)
+  city          String?         @db.VarChar(100)
+  postal_code   String?         @db.VarChar(20)
+  nip           String?         @db.VarChar(20)
+  created_at    DateTime        @default(now()) @db.Timestamp(6)
+  updated_at    DateTime        @default(now()) @db.Timestamp(6)
+  users         users?          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  review        review[]
+  service_order service_order[]
+  vehicle       vehicle[]
+}
+
+model document {
+  id                      Int                   @id @default(autoincrement())
+  service_order_id        Int?
+  service_task_id         Int?
+  service_task_comment_id Int?
+  type                    document_type
+  url                     String
+  filename                String?               @db.VarChar(255)
+  filesize                Int?
+  thumbnail_url           String?
+  duration                Int?
+  created_at              DateTime              @default(now()) @db.Timestamp(6)
+  service_order           service_order?        @relation(fields: [service_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service_task_comment    service_task_comment? @relation(fields: [service_task_comment_id], references: [id], onUpdate: NoAction)
+  service_task            service_task?         @relation(fields: [service_task_id], references: [id], onUpdate: NoAction)
+
+  @@index([service_order_id], map: "idx_document_order")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model employees {
+  id                   Int                    @id @default(autoincrement())
+  first_name           String                 @db.VarChar(100)
+  last_name            String                 @db.VarChar(100)
+  position             String?                @db.VarChar(100)
+  phone                String?                @db.VarChar(20)
+  email                String?                @unique @db.VarChar(100)
+  role                 user_role              @default(MECHANIC)
+  salary               Decimal?               @db.Decimal(10, 2)
+  branch_id            Int?
+  created_at           DateTime               @default(now()) @db.Timestamp(6)
+  updated_at           DateTime               @default(now()) @db.Timestamp(6)
+  branches             branches?              @relation(fields: [branch_id], references: [id], onUpdate: NoAction)
+  service_order        service_order[]
+  service_task         service_task[]
+  service_task_comment service_task_comment[]
+}
+
+model invoice {
+  id               Int            @id @default(autoincrement())
+  invoice_number   String         @unique @db.VarChar(50)
+  service_order_id Int?           @unique
+  issue_date       DateTime       @default(dbgenerated("CURRENT_DATE")) @db.Date
+  due_date         DateTime?      @db.Date
+  total_amount     Decimal        @db.Decimal(10, 2)
+  tax_amount       Decimal        @db.Decimal(10, 2)
+  pdf_url          String?
+  created_at       DateTime       @default(now()) @db.Timestamp(6)
+  service_order    service_order? @relation(fields: [service_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model logs {
+  id          Int      @id @default(autoincrement())
+  user_id     Int?
+  action      String
+  entity_type String?  @db.VarChar(50)
+  entity_id   String?  @db.VarChar(50)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  users       users?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_logs_user")
+}
+
+model notification {
+  id         Int               @id @default(autoincrement())
+  user_id    Int?
+  type       notification_type
+  title      String            @db.VarChar(150)
+  message    String?
+  read       Boolean           @default(false)
+  created_at DateTime          @default(now()) @db.Timestamp(6)
+  users      users?            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_notification_user")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model part {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(100)
+  part_number        String               @unique @db.VarChar(50)
+  quantity           Int                  @default(0)
+  min_quantity       Int                  @default(5)
+  price              Decimal              @db.Decimal(10, 2)
+  supplier           String?              @db.VarChar(100)
+  created_at         DateTime             @default(now()) @db.Timestamp(6)
+  updated_at         DateTime             @default(now()) @db.Timestamp(6)
+  service_order_part service_order_part[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model review {
+  id               Int            @id @default(autoincrement())
+  customer_id      Int?
+  service_order_id Int?
+  rating           Int
+  comment          String?
+  created_at       DateTime       @default(now()) @db.Timestamp(6)
+  customer         customer?      @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service_order    service_order? @relation(fields: [service_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model service_order {
+  id                           Int                            @id @default(autoincrement())
+  order_number                 String                         @unique @db.VarChar(50)
+  vehicle_id                   Int?
+  customer_id                  Int?
+  mechanic_id                  Int?
+  description                  String?
+  status                       order_status                   @default(NEW)
+  is_status_manual             Boolean                        @default(false)
+  start_date                   DateTime                       @default(now()) @db.Timestamp(6)
+  end_date                     DateTime?                      @db.Timestamp(6)
+  labor_cost                   Decimal                        @default(0) @db.Decimal(10, 2)
+  total_cost                   Decimal                        @default(0) @db.Decimal(10, 2)
+  notes                        String?
+  created_at                   DateTime                       @default(now()) @db.Timestamp(6)
+  updated_at                   DateTime                       @default(now()) @db.Timestamp(6)
+  document                     document[]
+  invoice                      invoice?
+  review                       review[]
+  customer                     customer?                      @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  employees                    employees?                     @relation(fields: [mechanic_id], references: [id], onUpdate: NoAction)
+  vehicle                      vehicle?                       @relation(fields: [vehicle_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service_order_part           service_order_part[]
+  service_order_status_history service_order_status_history[]
+  service_task                 service_task[]
+
+  @@index([customer_id], map: "idx_service_order_customer")
+  @@index([mechanic_id], map: "idx_service_order_mechanic")
+  @@index([status], map: "idx_service_order_status")
+  @@index([vehicle_id], map: "idx_service_order_vehicle")
+}
+
+model service_order_part {
+  id               Int            @id @default(autoincrement())
+  service_order_id Int?
+  part_id          Int?
+  quantity         Int
+  price_at_time    Decimal        @db.Decimal(10, 2)
+  created_at       DateTime       @default(now()) @db.Timestamp(6)
+  updated_at       DateTime       @default(now()) @db.Timestamp(6)
+  part             part?          @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service_order    service_order? @relation(fields: [service_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model service_order_status_history {
+  id               Int            @id @default(autoincrement())
+  service_order_id Int?
+  old_status       order_status?
+  new_status       order_status
+  changed_by       Int?
+  is_manual        Boolean        @default(false)
+  note             String?
+  created_at       DateTime       @default(now()) @db.Timestamp(6)
+  users            users?         @relation(fields: [changed_by], references: [id], onUpdate: NoAction)
+  service_order    service_order? @relation(fields: [service_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model service_task {
+  id                   Int                    @id @default(autoincrement())
+  service_order_id     Int?
+  mechanic_id          Int?
+  title                String                 @db.VarChar(150)
+  description          String?
+  status               task_status            @default(PENDING)
+  priority             Int                    @default(0)
+  created_at           DateTime               @default(now()) @db.Timestamp(6)
+  updated_at           DateTime               @default(now()) @db.Timestamp(6)
+  document             document[]
+  employees            employees?             @relation(fields: [mechanic_id], references: [id], onUpdate: NoAction)
+  service_order        service_order?         @relation(fields: [service_order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  service_task_comment service_task_comment[]
+
+  @@index([service_order_id], map: "idx_service_task_order")
+  @@index([status], map: "idx_service_task_status")
+}
+
+model service_task_comment {
+  id              Int           @id @default(autoincrement())
+  service_task_id Int?
+  mechanic_id     Int?
+  title           String?       @db.VarChar(150)
+  message         String?
+  status          task_status?
+  has_attachment  Boolean       @default(false)
+  created_at      DateTime      @default(now()) @db.Timestamp(6)
+  updated_at      DateTime      @default(now()) @db.Timestamp(6)
+  document        document[]
+  employees       employees?    @relation(fields: [mechanic_id], references: [id], onUpdate: NoAction)
+  service_task    service_task? @relation(fields: [service_task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  id                           Int                            @id @default(autoincrement())
+  email                        String                         @unique @db.VarChar(100)
+  password                     String                         @db.VarChar(255)
+  name                         String                         @db.VarChar(100)
+  phone                        String?                        @db.VarChar(20)
+  role                         user_role                      @default(CLIENT)
+  created_at                   DateTime                       @default(now()) @db.Timestamp(6)
+  updated_at                   DateTime                       @default(now()) @db.Timestamp(6)
+  customer                     customer?
+  logs                         logs[]
+  notification                 notification[]
+  service_order_status_history service_order_status_history[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model vehicle {
+  id              Int             @id @default(autoincrement())
+  customer_id     Int?
+  brand           String          @db.VarChar(50)
+  model           String          @db.VarChar(50)
+  year            Int?
+  vin             String          @unique @db.VarChar(50)
+  license_plate   String?         @db.VarChar(20)
+  mileage         Int?
+  next_inspection DateTime?       @db.Date
+  created_at      DateTime        @default(now()) @db.Timestamp(6)
+  updated_at      DateTime        @default(now()) @db.Timestamp(6)
+  service_order   service_order[]
+  customer        customer?       @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+enum document_type {
+  PHOTO
+  VIDEO
+  INVOICE
+  DOCUMENT
+}
+
+enum notification_type {
+  REPAIR_COMPLETED
+  INSPECTION_SOON
+  PROMOTION
+  MESSAGE
+}
+
+enum order_status {
+  NEW
+  IN_PROGRESS
+  WAITING_FOR_PARTS
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum task_status {
+  PENDING
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum user_role {
+  ADMIN
+  MECHANIC
+  WAREHOUSE
+  RECEPTIONIST
+  CLIENT
+}
