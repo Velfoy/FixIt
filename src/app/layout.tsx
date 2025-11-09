@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
+
+const inter = Inter({ subsets: ["latin"] });
 import Navbar from "@/components/layouts/Navbar";
 
-export const metadata = {
-  title: "My App",
-  description: "Modern app with role-based dashboard",
+export const metadata: Metadata = {
+  title: "AutoService - Система управления автосервисом",
+  description:
+    "Профессиональная система управления автосервисом с видеоотчётами",
 };
 
 export default function RootLayout({
@@ -12,10 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gray-50 text-gray-900">
-        <Navbar />
-        <main className="p-6">{children}</main>
+    <html lang="ru">
+      <body className={inter.className}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
