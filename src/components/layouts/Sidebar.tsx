@@ -45,6 +45,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role }: SidebarProps) => {
           <li>
             <a href={`/${role}/settings`}>Settings</a>
           </li>
+          <li>
+            <a href={`/${role}/profile`}>Profile</a>
+          </li>
         </ul>
       </nav>
     </div>
