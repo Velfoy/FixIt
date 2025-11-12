@@ -1,8 +1,7 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCachedSession } from "@/lib/session";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedSession();
   const role = session?.user?.role;
 
   return (

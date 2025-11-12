@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCachedSession } from "@/lib/session";
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedSession();
   const user = session?.user;
 
   return (
