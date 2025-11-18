@@ -11,33 +11,171 @@
   flex-direction: column;
 }
 
-/* Header (replaces bg-gray-900, flex, etc.) */
-.page-header {
-  background: #111827; /* similar to Tailwind bg-gray-900 */
-  color: #ffffff;
-  padding: 16px; /* like p-4 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Logout button */
-.logout-btn {
-  background: #dc2626; /* similar to bg-red-600 */
-  color: #ffffff;
-  border: none;
-  padding: 4px 12px; /* px-3 py-1 */
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  opacity: 0.9;
-}
-
 /* Main content area */
 .page-main {
   flex: 1;
   padding: 24px; /* like p-6 */
   overflow: auto;
+}
+
+/* --- Layout --- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 20px 20px;
+}
+
+/* --- Search Box --- */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+.search-box:hover {
+  box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.4);
+  transform: translateY(2px);
+}
+.mic-icon {
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+}
+
+.search-placeholder {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+/* --- Right Section --- */
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background-color: #e5e7eb;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+.right-section:hover {
+  box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.4);
+  transform: translateY(2px);
+}
+/* Mode buttons */
+.mode-btn {
+  font-size: 14px;
+  color: #4b5563;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mode-btn:hover {
+  color: #1f2937;
+}
+
+.dark-btn {
+  color: #9ca3af;
+}
+
+.dark-btn:hover {
+  color: #4b5563;
+}
+
+/* --- User Box --- */
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  background: #1f2937;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-icon {
+  width: 16px;
+  height: 16px;
+  color: white;
+}
+
+.user-info .username {
+  font-size: 14px;
+  color: #1f2937;
+  font-family: Trebuchet MS !important;
+}
+
+.date {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-left: 2px;
+  font-family: Trebuchet MS !important;
+  margin-right: 4px;
+}
+.logout-btn {
+  background: #ad0404;
+  color: #ffffff;
+  font-family: "Trebuchet MS", sans-serif !important;
+  border: none;
+  padding: 7px 20px;
+  border-radius: 15px;
+  cursor: pointer;
+
+  position: relative;
+  overflow: hidden;
+
+  transition: transform 0.3s ease, border-radius 0.3s ease, box-shadow 0.4s ease,
+    background 0.4s ease;
+}
+
+.logout-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  border-radius: 18px;
+  background: #b90606;
+  box-shadow: 0 8px 20px rgba(173, 4, 4, 0.35);
+}
+
+.logout-btn:hover::before {
+  left: 200%;
 }
