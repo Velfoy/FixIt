@@ -1,0 +1,28 @@
+.base-input {
+  width: 100%;
+  min-width: 0;
+  max-width: -webkit-fill-available;
+  height: 36px;
+
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+
+  font-size: 14px;
+  color: var(--text-main);
+  background: #050815;
+
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.base-input::placeholder {
+  color: var(--text-soft);
+}
+
+.base-input:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(173, 4, 4, 0.45);
+  background: #070a1a;
+}

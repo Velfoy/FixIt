@@ -1,0 +1,45 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease,
+    border-color 0.2s ease, color 0.2s ease;
+
+  padding: 6px 18px;
+  height: 36px;
+
+  --icon-size: 16px;
+}
+
+.btn--default {
+  background: linear-gradient(135deg, #ad0404, var(--accent));
+  color: #ffffff;
+  border-color: rgba(248, 113, 113, 0.7);
+  box-shadow: 0 12px 28px rgba(173, 4, 4, 0.7);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn--default:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ad0404, #3b0000);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--text-main);
+  border-color: var(--border-subtle);
+}
+
+.btn--outline:hover {
+  background: #111827;
+}

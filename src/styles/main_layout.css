@@ -14,8 +14,10 @@
 /* Main content area */
 .page-main {
   flex: 1;
-  padding: 24px; /* like p-6 */
+  padding: 0px 24px; /* like p-6 */
   overflow: auto;
+  background: #050509;
+  color: #f9fafb;
 }
 
 /* --- Layout --- */
@@ -25,6 +27,7 @@
   justify-content: space-between;
   margin-bottom: 2rem;
   padding: 20px 20px;
+  padding-bottom: 5px;
 }
 
 /* --- Search Box --- */
