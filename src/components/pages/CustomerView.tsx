@@ -25,100 +25,92 @@ import {
 } from "lucide-react";
 
 import "../../styles/users.css";
-
-type CustomerStatus = "active" | "vip" | "inactive";
-
-type Customer = {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  cars: { model: string; year: number; plate: string }[];
-  totalOrders: number;
-  totalSpent: number;
-  lastVisit: string;
-  memberSince: string;
-  status: CustomerStatus;
-};
+import type { Customer, CustomerStatus } from "@/types/customer";
 
 const formatMoney = (value: number) =>
-  value.toLocaleString("en-US", { minimumFractionDigits: 0 });
+  value?.toLocaleString("en-US", { minimumFractionDigits: 0 });
 
-export default function CustomersView({ session }: { session: any }) {
+export default function CustomersView({
+  session,
+  dataCustomers,
+}: {
+  session: any;
+  dataCustomers: Customer[];
+}) {
   const [searchQuery, setSearchQuery] = useState("");
+  //mock data
+  // const [customers, setCustomers] = useState<Customer[]>([
+  //   {
+  //     id: 1,
+  //     name: "John Smith",
+  //     email: "john.smith@email.com",
+  //     phone: "+1 (555) 123-4567",
+  //     address: "123 Main St, New York, NY 10001",
+  //     cars: [{ model: "Tesla Model S", year: 2023, plate: "ABC 1234" }],
+  //     totalOrders: 12,
+  //     totalSpent: 4500,
+  //     lastVisit: "2025-11-10",
+  //     memberSince: "2023-03-15",
+  //     status: "active",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Emma Wilson",
+  //     email: "emma.wilson@email.com",
+  //     phone: "+1 (555) 234-5678",
+  //     address: "456 Oak Ave, Los Angeles, CA 90001",
+  //     cars: [
+  //       { model: "BMW X5", year: 2022, plate: "XYZ 5678" },
+  //       { model: "BMW M4", year: 2021, plate: "BMW 9012" },
+  //     ],
+  //     totalOrders: 18,
+  //     totalSpent: 6800,
+  //     lastVisit: "2025-11-15",
+  //     memberSince: "2022-08-20",
+  //     status: "active",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "David Brown",
+  //     email: "david.brown@email.com",
+  //     phone: "+1 (555) 345-6789",
+  //     address: "789 Pine Rd, Chicago, IL 60601",
+  //     cars: [{ model: "Audi A8", year: 2024, plate: "AUD 3456" }],
+  //     totalOrders: 8,
+  //     totalSpent: 3200,
+  //     lastVisit: "2025-11-12",
+  //     memberSince: "2023-11-10",
+  //     status: "active",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Sarah Johnson",
+  //     email: "sarah.j@email.com",
+  //     phone: "+1 (555) 456-7890",
+  //     address: "321 Elm St, Miami, FL 33101",
+  //     cars: [{ model: "Mercedes-AMG GT", year: 2023, plate: "MER 7890" }],
+  //     totalOrders: 15,
+  //     totalSpent: 8900,
+  //     lastVisit: "2025-11-08",
+  //     memberSince: "2022-01-05",
+  //     status: "vip",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Michael Chen",
+  //     email: "michael.chen@email.com",
+  //     phone: "+1 (555) 567-8901",
+  //     address: "654 Maple Dr, Seattle, WA 98101",
+  //     cars: [{ model: "Porsche 911", year: 2024, plate: "POR 1234" }],
+  //     totalOrders: 5,
+  //     totalSpent: 2100,
+  //     lastVisit: "2025-09-20",
+  //     memberSince: "2024-06-12",
+  //     status: "inactive",
+  //   },
+  // ]);
 
-  const [customers, setCustomers] = useState<Customer[]>([
-    {
-      id: 1,
-      name: "John Smith",
-      email: "john.smith@email.com",
-      phone: "+1 (555) 123-4567",
-      address: "123 Main St, New York, NY 10001",
-      cars: [{ model: "Tesla Model S", year: 2023, plate: "ABC 1234" }],
-      totalOrders: 12,
-      totalSpent: 4500,
-      lastVisit: "2025-11-10",
-      memberSince: "2023-03-15",
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Emma Wilson",
-      email: "emma.wilson@email.com",
-      phone: "+1 (555) 234-5678",
-      address: "456 Oak Ave, Los Angeles, CA 90001",
-      cars: [
-        { model: "BMW X5", year: 2022, plate: "XYZ 5678" },
-        { model: "BMW M4", year: 2021, plate: "BMW 9012" },
-      ],
-      totalOrders: 18,
-      totalSpent: 6800,
-      lastVisit: "2025-11-15",
-      memberSince: "2022-08-20",
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "David Brown",
-      email: "david.brown@email.com",
-      phone: "+1 (555) 345-6789",
-      address: "789 Pine Rd, Chicago, IL 60601",
-      cars: [{ model: "Audi A8", year: 2024, plate: "AUD 3456" }],
-      totalOrders: 8,
-      totalSpent: 3200,
-      lastVisit: "2025-11-12",
-      memberSince: "2023-11-10",
-      status: "active",
-    },
-    {
-      id: 4,
-      name: "Sarah Johnson",
-      email: "sarah.j@email.com",
-      phone: "+1 (555) 456-7890",
-      address: "321 Elm St, Miami, FL 33101",
-      cars: [{ model: "Mercedes-AMG GT", year: 2023, plate: "MER 7890" }],
-      totalOrders: 15,
-      totalSpent: 8900,
-      lastVisit: "2025-11-08",
-      memberSince: "2022-01-05",
-      status: "vip",
-    },
-    {
-      id: 5,
-      name: "Michael Chen",
-      email: "michael.chen@email.com",
-      phone: "+1 (555) 567-8901",
-      address: "654 Maple Dr, Seattle, WA 98101",
-      cars: [{ model: "Porsche 911", year: 2024, plate: "POR 1234" }],
-      totalOrders: 5,
-      totalSpent: 2100,
-      lastVisit: "2025-09-20",
-      memberSince: "2024-06-12",
-      status: "inactive",
-    },
-  ]);
-
+  const [customers, setCustomers] = useState<Customer[]>(dataCustomers);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,14 +134,16 @@ export default function CustomersView({ session }: { session: any }) {
     status: "active",
   });
 
-  const filteredCustomers = customers.filter(
+  const filteredCustomers = customers?.filter(
     (customer) =>
       customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.phone.includes(searchQuery)
   );
 
-  const selectedCustomerData = customers.find((c) => c.id === selectedCustomer);
+  const selectedCustomerData = customers?.find(
+    (c) => c.id === selectedCustomer
+  );
 
   function getStatusBadge(status: CustomerStatus) {
     switch (status) {
@@ -227,7 +221,7 @@ export default function CustomersView({ session }: { session: any }) {
         );
       } else {
         // === ADD MODE ===
-        const res = await fetch("/api/customers", {
+        const res = await fetch(`localhost:3000/${session?.role}/customers`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newCustomer),
@@ -303,7 +297,7 @@ export default function CustomersView({ session }: { session: any }) {
               <Car className="icon-md" />
             </div>
             <div>
-              <p className="stats-value">{customers.length}</p>
+              <p className="stats-value">{customers?.length || 0}</p>
               <p className="stats-label">Total Customers</p>
             </div>
           </div>
@@ -316,7 +310,10 @@ export default function CustomersView({ session }: { session: any }) {
             </div>
             <div>
               <p className="stats-value">
-                ${formatMoney(customers.reduce((s, c) => s + c.totalSpent, 0))}
+                $
+                {formatMoney(
+                  customers?.reduce((s, c) => s + c.totalSpent, 0)
+                ) || 0}
               </p>
               <p className="stats-label">Total Revenue</p>
             </div>
@@ -330,7 +327,7 @@ export default function CustomersView({ session }: { session: any }) {
             </div>
             <div>
               <p className="stats-value">
-                {customers.reduce((s, c) => s + c.cars.length, 0)}
+                {customers?.reduce((s, c) => s + c.cars.length, 0) || 0}
               </p>
               <p className="stats-label">Total Vehicles</p>
             </div>
@@ -344,7 +341,7 @@ export default function CustomersView({ session }: { session: any }) {
             </div>
             <div>
               <p className="stats-value">
-                {customers.reduce((s, c) => s + c.totalOrders, 0)}
+                {customers?.reduce((s, c) => s + c.totalOrders, 0) || 0}
               </p>
               <p className="stats-label">Total Orders</p>
             </div>
@@ -372,7 +369,7 @@ export default function CustomersView({ session }: { session: any }) {
       <Card className="customers-list-card">
         <div className="customers-list-inner">
           <div className="customers-list">
-            {filteredCustomers.map((customer) => (
+            {filteredCustomers?.map((customer) => (
               <div
                 key={customer.id}
                 className="customer-row"
