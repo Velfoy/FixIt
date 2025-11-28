@@ -133,7 +133,7 @@
 
 .customer-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
 
   padding: 12px 14px;
@@ -145,6 +145,33 @@
 
   transition: background 0.16s ease, transform 0.1s ease, box-shadow 0.16s ease,
     border-color 0.16s ease;
+}
+.mechanic-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.mechanic-column {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: start;
+
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-subtle);
+
+  transition: background 0.16s ease, transform 0.1s ease, box-shadow 0.16s ease,
+    border-color 0.16s ease;
+}
+.mechanic-column:hover {
+  transform: translateY(-2px);
+  background: #1b1b27;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.7);
 }
 
 .customer-row:hover {
@@ -300,4 +327,73 @@
   background: rgba(148, 163, 184, 0.16);
   color: #e5e7eb;
   border-color: rgba(148, 163, 184, 0.6);
+}
+.mechanic-main {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.mechanic-info_1 {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  color: #cccccc;
+  background-color: oklch(34.846% 0.00004 271.152 / 0.842);
+  border: 1px solid #c0c0c0;
+  cursor: pointer;
+}
+.mechanic-info_2 {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background-color: oklch(22.716% 0.07702 255.818 / 0.349) !important;
+  border: 1px solid oklch(50.718% 0.10819 269.006);
+  color: oklch(53.637% 0.13082 267.96);
+  cursor: pointer;
+}
+.mechanic-info_3 {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background-color: oklch(62.078% 0.03456 156.774) !important;
+  border: 1px solid oklch(80.224% 0.22839 148.414);
+  color: oklch(78.29% 0.22641 147.97 / 0.897);
+  cursor: pointer;
+}
+
+.mechanic-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.terminate-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+}
+.icon-btn--disabled {
+  background-color: #e63946 !important; /* red */
+  color: white !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+.mechanic-column--disabled {
+  opacity: 0.5;
+  pointer-events: none; /* disables clicking */
+  cursor: not-allowed;
 }

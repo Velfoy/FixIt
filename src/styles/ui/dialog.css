@@ -30,7 +30,8 @@
 
   width: 100%;
   max-width: 600px;
-  max-height: calc(100% - 2rem);
+  max-height: 90%;
+  overflow-y: scroll;
 
   transform: translate(-50%, -50%) scale(0.97);
   opacity: 0;
@@ -221,6 +222,9 @@
 .dialog-field-value {
   font-size: 13px;
   color: #111827;
+}
+.dialog-field p {
+  margin-top: 1px;
 }
 
 .dialog-divider {
