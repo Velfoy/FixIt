@@ -138,7 +138,31 @@ const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
       setIsSubmitting(false);
     }
   }
-
+  //--------------------------------------------
+  // DELETE USER HANDLER
+  //--------------------------------------------
+  async function handleUserDelete(user: User) {
+    if (!confirm(`Are you sure you want to delete user ${user.email}?`)) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: user.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Failed to delete user");
+        return;
+      }
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      alert("Failed to delete user");
+      return;
+    }
+  }
   // -------------------------------------------
   // RENDER
   // -------------------------------------------
@@ -164,7 +188,11 @@ const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
       </div>
 
       {/* Table */}
-      <UsersTable users={users} onChangeRole={handleChangeRole} />
+      <UsersTable
+        users={users}
+        onClickDeleteUser={handleUserDelete}
+        onChangeRole={handleChangeRole}
+      />
 
       {/* Add User Modal */}
       {isAddOpen && (

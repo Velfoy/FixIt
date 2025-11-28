@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog";
-
 import {
   Search,
   Plus,
@@ -21,11 +19,10 @@ import {
   DollarSign,
   Calendar,
   Edit,
-  Trash2,
 } from "lucide-react";
 
 import "../../styles/users.css";
-import type { Customer, CustomerStatus } from "@/types/customer";
+import type { Customer } from "@/types/customer";
 
 const formatMoney = (value: number) =>
   value?.toLocaleString("en-US", { minimumFractionDigits: 0 });
@@ -38,216 +35,148 @@ export default function CustomersView({
   dataCustomers: Customer[];
 }) {
   const [searchQuery, setSearchQuery] = useState("");
-  //mock data
-  // const [customers, setCustomers] = useState<Customer[]>([
-  //   {
-  //     id: 1,
-  //     name: "John Smith",
-  //     email: "john.smith@email.com",
-  //     phone: "+1 (555) 123-4567",
-  //     address: "123 Main St, New York, NY 10001",
-  //     cars: [{ model: "Tesla Model S", year: 2023, plate: "ABC 1234" }],
-  //     totalOrders: 12,
-  //     totalSpent: 4500,
-  //     lastVisit: "2025-11-10",
-  //     memberSince: "2023-03-15",
-  //     status: "active",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Emma Wilson",
-  //     email: "emma.wilson@email.com",
-  //     phone: "+1 (555) 234-5678",
-  //     address: "456 Oak Ave, Los Angeles, CA 90001",
-  //     cars: [
-  //       { model: "BMW X5", year: 2022, plate: "XYZ 5678" },
-  //       { model: "BMW M4", year: 2021, plate: "BMW 9012" },
-  //     ],
-  //     totalOrders: 18,
-  //     totalSpent: 6800,
-  //     lastVisit: "2025-11-15",
-  //     memberSince: "2022-08-20",
-  //     status: "active",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "David Brown",
-  //     email: "david.brown@email.com",
-  //     phone: "+1 (555) 345-6789",
-  //     address: "789 Pine Rd, Chicago, IL 60601",
-  //     cars: [{ model: "Audi A8", year: 2024, plate: "AUD 3456" }],
-  //     totalOrders: 8,
-  //     totalSpent: 3200,
-  //     lastVisit: "2025-11-12",
-  //     memberSince: "2023-11-10",
-  //     status: "active",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Sarah Johnson",
-  //     email: "sarah.j@email.com",
-  //     phone: "+1 (555) 456-7890",
-  //     address: "321 Elm St, Miami, FL 33101",
-  //     cars: [{ model: "Mercedes-AMG GT", year: 2023, plate: "MER 7890" }],
-  //     totalOrders: 15,
-  //     totalSpent: 8900,
-  //     lastVisit: "2025-11-08",
-  //     memberSince: "2022-01-05",
-  //     status: "vip",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Michael Chen",
-  //     email: "michael.chen@email.com",
-  //     phone: "+1 (555) 567-8901",
-  //     address: "654 Maple Dr, Seattle, WA 98101",
-  //     cars: [{ model: "Porsche 911", year: 2024, plate: "POR 1234" }],
-  //     totalOrders: 5,
-  //     totalSpent: 2100,
-  //     lastVisit: "2025-09-20",
-  //     memberSince: "2024-06-12",
-  //     status: "inactive",
-  //   },
-  // ]);
-
   const [customers, setCustomers] = useState<Customer[]>(dataCustomers);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // если null — режим "Add", если id — режим "Edit"
   const [editingCustomerId, setEditingCustomerId] = useState<number | null>(
     null
   );
 
+  const [existingUsers, setExistingUsers] = useState<
+    {
+      id: number;
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone?: string;
+    }[]
+  >([]);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
   const [newCustomer, setNewCustomer] = useState<{
-    name: string;
-    email: string;
-    phone: string;
     address: string;
-    status: CustomerStatus;
+    city: string;
+    postal_code?: string;
+    nip: string;
   }>({
-    name: "",
-    email: "",
-    phone: "",
     address: "",
-    status: "active",
+    city: "",
+    postal_code: "",
+    nip: "",
   });
 
-  const filteredCustomers = customers?.filter(
-    (customer) =>
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.phone.includes(searchQuery)
-  );
+  // Fetch all existing users with role CLIENT
+  useEffect(() => {
+    fetch("/api/users")
+      .then((res) => res.json())
+      .then((data) => {
+        const clients = data.filter(
+          (u: any) => !customers.some((c) => c.email === u.email)
+        );
+        setExistingUsers(clients);
+      })
+      .catch(console.error);
+  }, []);
+
+  // In the filteredCustomers calculation, add safe access:
+  const filteredCustomers =
+    customers?.filter((customer) => {
+      const name = customer.name || "";
+      const email = customer.email || "";
+      const phone = customer.phone || "";
+
+      return (
+        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        phone.includes(searchQuery)
+      );
+    }) || [];
 
   const selectedCustomerData = customers?.find(
     (c) => c.id === selectedCustomer
   );
 
-  function getStatusBadge(status: CustomerStatus) {
-    switch (status) {
-      case "active":
-        return (
-          <span className="status-badge status-badge--active">Active</span>
-        );
-      case "vip":
-        return <span className="status-badge status-badge--vip">VIP</span>;
-      case "inactive":
-        return (
-          <span className="status-badge status-badge--inactive">Inactive</span>
-        );
-    }
-  }
-
   function resetForm() {
     setNewCustomer({
-      name: "",
-      email: "",
-      phone: "",
       address: "",
-      status: "active",
+      city: "",
+      postal_code: "",
+      nip: "",
     });
+    setSelectedUserId(null);
     setEditingCustomerId(null);
   }
 
   function openAddModal() {
     resetForm();
+    setSelectedCustomer(null);
     setShowAddCustomer(true);
   }
 
   function openEditModal(customer: Customer) {
     setEditingCustomerId(customer.id);
     setNewCustomer({
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
       address: customer.address,
-      status: customer.status,
+      city: customer.city ?? "",
+      postal_code: customer.postal_code,
+      nip: customer.nip ?? "",
     });
     setSelectedCustomer(null);
+    setSelectedUserId(null);
     setShowAddCustomer(true);
   }
 
   async function handleSaveCustomer(e: FormEvent) {
     e.preventDefault();
-    if (!newCustomer.name.trim()) return;
+
+    if (!editingCustomerId && !selectedUserId) {
+      alert("Please select a user for this customer");
+      return;
+    }
 
     try {
       setIsSubmitting(true);
 
       // === EDIT MODE ===
       if (editingCustomerId !== null) {
-        // если есть бэк:
-        // await fetch(`/api/customers/${editingCustomerId}`, {
-        //   method: "PUT",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(newCustomer),
-        // });
-
-        setCustomers((prev) =>
-          prev.map((c) =>
-            c.id === editingCustomerId
-              ? {
-                  ...c,
-                  name: newCustomer.name,
-                  email: newCustomer.email,
-                  phone: newCustomer.phone,
-                  address: newCustomer.address,
-                  status: newCustomer.status,
-                }
-              : c
-          )
-        );
-      } else {
-        // === ADD MODE ===
-        const res = await fetch(`localhost:3000/${session?.role}/customers`, {
-          method: "POST",
+        const res = await fetch("/api/customers", {
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newCustomer),
+          body: JSON.stringify({
+            id: editingCustomerId,
+            ...newCustomer,
+          }),
         });
 
-        let created = null;
-        if (res.ok) created = await res.json();
+        if (res.ok) {
+          const updatedCustomer: Customer = await res.json();
+          setCustomers((prev) =>
+            prev.map((c) => (c.id === editingCustomerId ? updatedCustomer : c))
+          );
+        } else {
+          const error = await res.json();
+          console.error("Failed to update customer:", error);
+          alert(`Failed to update customer: ${error.error}`);
+        }
+      } else {
+        // === ADD MODE ===
+        const res = await fetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: selectedUserId,
+            ...newCustomer,
+          }),
+        });
 
-        const newId =
-          created?.id ?? (customers[customers.length - 1]?.id ?? 0) + 1;
-
-        const newEntry: Customer = {
-          id: newId,
-          name: newCustomer.name,
-          email: newCustomer.email,
-          phone: newCustomer.phone,
-          address: newCustomer.address,
-          status: newCustomer.status,
-          cars: [],
-          totalOrders: 0,
-          totalSpent: 0,
-          lastVisit: new Date().toISOString().slice(0, 10),
-          memberSince: new Date().toISOString().slice(0, 10),
-        };
-
-        setCustomers((prev) => [...prev, newEntry]);
+        const created: Customer = await res.json();
+        if (res.ok) {
+          setCustomers((prev) => [...prev, created]);
+        } else {
+          console.error("Failed to create customer:", created);
+        }
       }
 
       setShowAddCustomer(false);
@@ -257,16 +186,7 @@ export default function CustomersView({
     }
   }
 
-  function handleDeleteCustomer(id: number) {
-    // если есть бэк: await fetch(`/api/customers/${id}`, { method: "DELETE" });
-    setCustomers((prev) => prev.filter((c) => c.id !== id));
-    if (selectedCustomer === id) {
-      setSelectedCustomer(null);
-    }
-  }
-
   function handleViewOrders(customer: Customer) {
-    // тут потом можешь сделать router.push(`/admin/orders?customerId=${customer.id}`)
     alert(
       `Here you could show orders for ${customer.name} (id: ${customer.id})`
     );
@@ -282,7 +202,6 @@ export default function CustomersView({
             Manage and track customer information
           </p>
         </div>
-
         <Button onClick={openAddModal} className="add-customer-btn-override">
           <Plus className="icon-sm" />
           <span>Add Customer</span>
@@ -310,10 +229,9 @@ export default function CustomersView({
             </div>
             <div>
               <p className="stats-value">
-                $
                 {formatMoney(
-                  customers?.reduce((s, c) => s + c.totalSpent, 0)
-                ) || 0}
+                  customers?.reduce((s, c) => s + (c.totalSpent || 0), 0) || 0
+                )}
               </p>
               <p className="stats-label">Total Revenue</p>
             </div>
@@ -327,7 +245,7 @@ export default function CustomersView({
             </div>
             <div>
               <p className="stats-value">
-                {customers?.reduce((s, c) => s + c.cars.length, 0) || 0}
+                {customers?.reduce((s, c) => s + (c.cars?.length || 0), 0) || 0}
               </p>
               <p className="stats-label">Total Vehicles</p>
             </div>
@@ -341,7 +259,7 @@ export default function CustomersView({
             </div>
             <div>
               <p className="stats-value">
-                {customers?.reduce((s, c) => s + c.totalOrders, 0) || 0}
+                {customers?.reduce((s, c) => s + (c.totalOrders || 0), 0) || 0}
               </p>
               <p className="stats-label">Total Orders</p>
             </div>
@@ -349,7 +267,6 @@ export default function CustomersView({
         </Card>
       </div>
 
-      {/* Search */}
       <Card className="search-card">
         <div className="search-card-inner">
           <div className="search-wrapper">
@@ -365,7 +282,6 @@ export default function CustomersView({
         </div>
       </Card>
 
-      {/* Customers list */}
       <Card className="customers-list-card">
         <div className="customers-list-inner">
           <div className="customers-list">
@@ -384,7 +300,6 @@ export default function CustomersView({
                 <div className="customer-main">
                   <div className="customer-main-header">
                     <h3 className="customer-name">{customer.name}</h3>
-                    {getStatusBadge(customer.status)}
                   </div>
 
                   <div className="customer-meta">
@@ -422,16 +337,6 @@ export default function CustomersView({
                   >
                     <Edit className="icon-sm" />
                   </button>
-
-                  <button
-                    className="icon-btn icon-btn--delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteCustomer(customer.id);
-                    }}
-                  >
-                    <Trash2 className="icon-sm icon-sm--red" />
-                  </button>
                 </div>
               </div>
             ))}
@@ -439,7 +344,6 @@ export default function CustomersView({
         </div>
       </Card>
 
-      {/* Customer Details Modal */}
       <Dialog
         open={selectedCustomer !== null}
         onOpenChange={() => setSelectedCustomer(null)}
@@ -458,7 +362,6 @@ export default function CustomersView({
                 <div className="dialog-header-text">
                   <div className="dialog-name-row">
                     <h2 className="dialog-name">{selectedCustomerData.name}</h2>
-                    {getStatusBadge(selectedCustomerData.status)}
                   </div>
                   <p className="dialog-member-since">
                     Member since {selectedCustomerData.memberSince}
@@ -481,10 +384,30 @@ export default function CustomersView({
                   </p>
                 </div>
 
-                <div className="dialog-field dialog-field--full">
+                <div className="dialog-field">
                   <p className="dialog-field-label">Address</p>
                   <p className="dialog-field-value">
                     {selectedCustomerData.address}
+                  </p>
+                </div>
+
+                <div className="dialog-field">
+                  <p className="dialog-field-label">City</p>
+                  <p className="dialog-field-value">
+                    {selectedCustomerData.city}
+                  </p>
+                </div>
+
+                <div className="dialog-field">
+                  <p className="dialog-field-label">NIP</p>
+                  <p className="dialog-field-value">
+                    {selectedCustomerData.nip}
+                  </p>
+                </div>
+                <div className="dialog-field">
+                  <p className="dialog-field-label">Postal Code</p>
+                  <p className="dialog-field-value">
+                    {selectedCustomerData.postal_code}
                   </p>
                 </div>
               </div>
@@ -554,7 +477,6 @@ export default function CustomersView({
         </DialogContent>
       </Dialog>
 
-      {/* Add / Edit Customer Modal */}
       <Dialog
         open={showAddCustomer}
         onOpenChange={(open) => {
@@ -574,69 +496,25 @@ export default function CustomersView({
             onSubmit={handleSaveCustomer}
           >
             <div className="dialog-form-grid">
-              <div className="dialog-form-field">
-                <label className="dialog-field-label">Full Name</label>
-                <Input
-                  placeholder="John Doe"
-                  className="dialog-input"
-                  value={newCustomer.name}
-                  onChange={(e) =>
-                    setNewCustomer((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div className="dialog-form-field">
-                <label className="dialog-field-label">Email</label>
-                <Input
-                  type="email"
-                  placeholder="john@email.com"
-                  className="dialog-input"
-                  value={newCustomer.email}
-                  onChange={(e) =>
-                    setNewCustomer((prev) => ({
-                      ...prev,
-                      email: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div className="dialog-form-field">
-                <label className="dialog-field-label">Phone</label>
-                <Input
-                  placeholder="+1 (555) 123-4567"
-                  className="dialog-input"
-                  value={newCustomer.phone}
-                  onChange={(e) =>
-                    setNewCustomer((prev) => ({
-                      ...prev,
-                      phone: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div className="dialog-form-field">
-                <label className="dialog-field-label">Status</label>
-                <select
-                  className="dialog-select"
-                  value={newCustomer.status}
-                  onChange={(e) =>
-                    setNewCustomer((prev) => ({
-                      ...prev,
-                      status: e.target.value as CustomerStatus,
-                    }))
-                  }
-                >
-                  <option value="active">Active</option>
-                  <option value="vip">VIP</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
+              {!editingCustomerId && (
+                <div className="dialog-form-field dialog-field--full">
+                  <label className="dialog-field-label">
+                    Select Existing User
+                  </label>
+                  <select
+                    className="dialog-input"
+                    value={selectedUserId ?? ""}
+                    onChange={(e) => setSelectedUserId(Number(e.target.value))}
+                  >
+                    <option value="">-- Select a user --</option>
+                    {existingUsers.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.first_name} {u.last_name} ({u.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="dialog-form-field dialog-field--full">
                 <label className="dialog-field-label">Address</label>
@@ -649,6 +527,46 @@ export default function CustomersView({
                       ...prev,
                       address: e.target.value,
                     }))
+                  }
+                />
+              </div>
+
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">City</label>
+                <Input
+                  placeholder="City"
+                  className="dialog-input"
+                  value={newCustomer.city}
+                  onChange={(e) =>
+                    setNewCustomer((prev) => ({
+                      ...prev,
+                      city: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Postal code</label>
+                <Input
+                  placeholder="123-456-78-90"
+                  className="dialog-input"
+                  value={newCustomer.postal_code}
+                  onChange={(e) =>
+                    setNewCustomer((prev) => ({
+                      ...prev,
+                      postal_code: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">NIP</label>
+                <Input
+                  placeholder="123-456-78-90"
+                  className="dialog-input"
+                  value={newCustomer.nip}
+                  onChange={(e) =>
+                    setNewCustomer((prev) => ({ ...prev, nip: e.target.value }))
                   }
                 />
               </div>

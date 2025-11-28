@@ -24,7 +24,6 @@ export async function POST(req: Request) {
 
     const { first_name, last_name, email, phone, password, role } = body;
 
-    // Basic validation
     if (!first_name || !last_name || !email || !password || !role) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -32,7 +31,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if user already exists
     const existing = await prisma.users.findUnique({
       where: { email },
     });
@@ -57,7 +55,6 @@ export async function POST(req: Request) {
       data: data,
     });
 
-    // return created user
     return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
     console.error("POST /api/users error:", error);
@@ -109,6 +106,35 @@ export async function PATCH(req: Request) {
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (error) {
     console.error("PATCH /api/users error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+export async function DELETE(req: Request) {
+  try {
+    const body = await req.json();
+    const { id } = body;
+    const userId = parseInt(String(id), 10);
+    if (Number.isNaN(userId)) {
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
+    }
+    const deletedUser = await prisma.users
+      .delete({ where: { id: userId } })
+      .catch((err) => {
+        console.error("Prisma delete error", err);
+        return null;
+      });
+    if (!deletedUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    return NextResponse.json(
+      { message: "User deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("DELETE /api/users error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

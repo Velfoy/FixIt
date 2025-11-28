@@ -4,16 +4,19 @@ import React from "react";
 import type { User, UserRole } from "@/types/users";
 import { Table, type ColumnDef } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
 
 type UsersTableProps = {
   users: User[];
   onChangeRole?: (user: User) => void;
+  onClickDeleteUser?: (user: User) => void;
   className?: string;
 };
 
 export function UsersTable({
   users,
   onChangeRole,
+  onClickDeleteUser,
   className,
 }: UsersTableProps) {
   const columns: ColumnDef<User>[] = [
@@ -62,13 +65,23 @@ export function UsersTable({
       header: "Actions",
       className: "table-cell--actions",
       render: (user) => (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onChangeRole?.(user)}
-        >
-          Edit role
-        </Button>
+        <>
+          {" "}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onChangeRole?.(user)}
+          >
+            Edit role
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onClickDeleteUser?.(user)}
+          >
+            <Trash size={16} />
+          </Button>
+        </>
       ),
     },
   ];
