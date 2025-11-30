@@ -54,10 +54,18 @@
   gap: 16px;
   margin-bottom: 24px;
 }
+.parts-stats-grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
 @media (min-width: 768px) {
   .customers-stats-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .parts-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -396,4 +404,13 @@
   opacity: 0.5;
   pointer-events: none; /* disables clicking */
   cursor: not-allowed;
+}
+.warehousetable {
+  margin-top: 20px;
+}
+.warehousetable .table-header-cell {
+  padding-left: 5px;
+}
+.warehousetable .table-header-cell:first-child {
+  padding-left: 16px;
 }

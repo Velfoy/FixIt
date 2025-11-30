@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import type { User, UserRole } from "@/types/users";
-import { UsersTable } from "@/components/UsersTable";
+import { UsersTable } from "@/components/tables/UsersTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import "@/styles/users.css";

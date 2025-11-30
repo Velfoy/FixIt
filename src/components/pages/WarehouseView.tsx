@@ -6,8 +6,9 @@ import { Input } from "../ui/input";
 import { DialogContent, DialogHeader, DialogTitle, Dialog } from "../ui/dialog";
 import { Plus } from "lucide-react";
 import { Card } from "../ui/card";
-import { Search } from "lucide-react";
+import { Search, Clock, Car, Check, DollarSign } from "lucide-react";
 import "@/styles/users.css";
+import { WarehouseTable } from "../tables/WarehouseTable";
 const WarehouseView = ({
   session,
   dataWarehouse,
@@ -108,6 +109,15 @@ const WarehouseView = ({
       setIsSubmitting(false);
     }
   }
+  const totalRevenue = parts.reduce(
+    (sum, m) => sum + (m.price * m.quantity || 0),
+    0
+  );
+  const lowStockItems = parts.filter(
+    (p) => p.quantity <= p.min_quantity
+  ).length;
+  function handlePartEdit() {}
+  function handlePartDelete() {}
   return (
     <div className="customers-view">
       <div className="customers-header">
@@ -119,6 +129,44 @@ const WarehouseView = ({
           <Plus className="icon-sm" />
           <span>Add Part</span>
         </Button>
+      </div>
+
+      <div className="parts-stats-grid">
+        <Card className="stats-card">
+          <div className="stats-card-inner">
+            <div className="stats-icon">
+              <Car className="icon-md" />
+            </div>
+            <div>
+              <p className="stats-value">{parts.length}</p>
+              <p className="stats-label">Total Items</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="stats-card">
+          <div className="stats-card-inner">
+            <div className="stats-icon">
+              <DollarSign className="icon-md" />
+            </div>
+            <div>
+              <p className="stats-value">${totalRevenue.toFixed(2)}</p>
+              <p className="stats-label">Inventory Value Revenue</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="stats-card">
+          <div className="stats-card-inner">
+            <div className="stats-icon">
+              <Check className="icon-md" />
+            </div>
+            <div>
+              <p className="stats-value">{lowStockItems}</p>
+              <p className="stats-label">Low Stock Items</p>
+            </div>
+          </div>
+        </Card>
       </div>
 
       <Card className="search-card">
@@ -135,6 +183,12 @@ const WarehouseView = ({
           </div>
         </div>
       </Card>
+      <WarehouseTable
+        className="warehousetable"
+        parts={parts}
+        onClickDeletePart={handlePartDelete}
+        onEditPart={handlePartEdit}
+      />
 
       <Dialog
         open={showAddPart}
