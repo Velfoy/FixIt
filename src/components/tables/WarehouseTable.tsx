@@ -39,7 +39,7 @@ export function WarehouseTable({
     },
     {
       key: "price",
-      header: "Price",
+      header: "Price($)",
       render: (part) => part.price,
     },
     {
@@ -52,7 +52,7 @@ export function WarehouseTable({
       header: "Created",
       render: (part) => {
         const raw =
-          ([part] as any).created_at ?? (part as any).createdAt ?? null;
+          ([part] as any).created_at ?? (part as any).created_at ?? null;
         if (!raw) return "—";
         const d = new Date(raw);
         if (Number.isNaN(d.getTime())) return String(raw);
@@ -62,7 +62,6 @@ export function WarehouseTable({
           day: "2-digit",
           hour: "2-digit",
           minute: "2-digit",
-          second: "2-digit",
         });
       },
     },

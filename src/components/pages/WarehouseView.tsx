@@ -4,11 +4,12 @@ import type { Part } from "@/types/part";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { DialogContent, DialogHeader, DialogTitle, Dialog } from "../ui/dialog";
-import { Plus } from "lucide-react";
+import { PackagePlus, Plus } from "lucide-react";
 import { Card } from "../ui/card";
 import { Search, Clock, Car, Check, DollarSign } from "lucide-react";
 import "@/styles/users.css";
 import { WarehouseTable } from "../tables/WarehouseTable";
+import { NextResponse } from "next/server";
 const WarehouseView = ({
   session,
   dataWarehouse,
@@ -35,8 +36,10 @@ const WarehouseView = ({
   const [showAddPart, setShowAddPart] = useState(false);
   const [searchQuery, setSeacrhQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedPart, setSelectedPart] = useState<number | null>(null);
   const [editingPartId, setEditingPartId] = useState<number | null>(null);
+  const [showRestockModal, setShowRestockModal] = useState(false);
+  const [restockPartId, setRestockPartId] = useState<number | null>(null);
+  const [restockAmount, setRestockAmount] = useState<number>(0);
   const filteredParts =
     parts?.filter((part) => {
       const name = part.name || "";
@@ -50,7 +53,6 @@ const WarehouseView = ({
     }) || [];
   function openAddModal() {
     resetForm();
-    setSelectedPart(null);
     setShowAddPart(true);
   }
   function resetForm() {
@@ -70,7 +72,7 @@ const WarehouseView = ({
       setIsSubmitting(true);
       if (editingPartId !== null) {
         const res = await fetch("/api/warehouse", {
-          method: "PUT",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id: editingPartId,
@@ -116,8 +118,72 @@ const WarehouseView = ({
   const lowStockItems = parts.filter(
     (p) => p.quantity <= p.min_quantity
   ).length;
-  function handlePartEdit() {}
-  function handlePartDelete() {}
+  function openEditModal(part: Part) {
+    setEditingPartId(part.id);
+    setNewPart({
+      name: part.name,
+      part_number: part.part_number,
+      quantity: part.quantity,
+      min_quantity: part.min_quantity,
+      price: part.price,
+      supplier: part.supplier,
+    });
+    setShowAddPart(true);
+  }
+  async function handlePartDelete(part: Part) {
+    if (!confirm(`Are you sure you want to delete part ${part.part_number}?`)) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/warehouse", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: part.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error || "Failed to delete user");
+        return;
+      }
+      setParts((prev) => prev.filter((u) => u.id !== part.id));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      alert("Failed to delete user");
+      return;
+    }
+  }
+  async function handleRestockPart() {
+    if (!restockPartId || restockAmount <= 0) {
+      alert("Select a part and enter a valid amount.");
+      return;
+    }
+
+    const part = parts.find((p) => p.id === restockPartId);
+    if (!part) return;
+
+    const updatedQty = part.quantity + restockAmount;
+
+    const res = await fetch("/api/warehouse", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: part.id,
+        quantity: updatedQty,
+      }),
+    });
+
+    const updated = await res.json();
+
+    if (res.ok) {
+      setParts((prev) => prev.map((p) => (p.id === part.id ? updated : p)));
+    } else {
+      alert(updated.error || "Failed to restock part");
+    }
+
+    setShowRestockModal(false);
+    setRestockPartId(null);
+    setRestockAmount(0);
+  }
   return (
     <div className="customers-view">
       <div className="customers-header">
@@ -125,10 +191,24 @@ const WarehouseView = ({
           <h1 className="customers-title">Warehouse Management</h1>
           <p className="customers-subtitle">Manage and track parts</p>
         </div>
-        <Button onClick={openAddModal} className="add-customer-btn-override">
-          <Plus className="icon-sm" />
-          <span>Add Part</span>
-        </Button>
+        <div>
+          <Button
+            onClick={() => {
+              setRestockPartId(null);
+              setRestockAmount(0);
+              setShowRestockModal(true);
+            }}
+            className="add-customer-btn-override"
+            style={{ backgroundColor: "#0A7B83", marginRight: "10px" }}
+          >
+            <PackagePlus className="icon-sm" />
+            <span>Restock Part</span>
+          </Button>
+          <Button onClick={openAddModal} className="add-customer-btn-override">
+            <Plus className="icon-sm" />
+            <span>Add Part</span>
+          </Button>
+        </div>
       </div>
 
       <div className="parts-stats-grid">
@@ -185,9 +265,9 @@ const WarehouseView = ({
       </Card>
       <WarehouseTable
         className="warehousetable"
-        parts={parts}
+        parts={filteredParts}
         onClickDeletePart={handlePartDelete}
-        onEditPart={handlePartEdit}
+        onEditPart={openEditModal}
       />
 
       <Dialog
@@ -318,6 +398,77 @@ const WarehouseView = ({
                   setShowAddPart(false);
                   resetForm();
                 }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={showRestockModal}
+        onOpenChange={(open) => {
+          setShowRestockModal(open);
+          if (!open) {
+            setRestockPartId(null);
+            setRestockAmount(0);
+          }
+        }}
+      >
+        <DialogContent className="dialog-content">
+          <DialogHeader>
+            <DialogTitle className="dialog-title">Restock Parts</DialogTitle>
+          </DialogHeader>
+
+          <form
+            className="dialog-body dialog-body--form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              handleRestockPart();
+            }}
+          >
+            <div className="dialog-form-grid">
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Select Part</label>
+                <select
+                  className="dialog-input"
+                  value={restockPartId || ""}
+                  onChange={(e) => setRestockPartId(Number(e.target.value))}
+                >
+                  <option value="">-- Select Part --</option>
+                  {parts.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.part_number})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Amount to Add</label>
+                <Input
+                  type="number"
+                  placeholder="10"
+                  className="dialog-input"
+                  value={restockAmount === 0 ? "" : restockAmount}
+                  onChange={(e) =>
+                    setRestockAmount(
+                      e.target.value === "" ? 0 : Number(e.target.value)
+                    )
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="dialog-actions">
+              <Button type="submit" className="dialog-btn dialog-btn--primary">
+                Restock
+              </Button>
+
+              <Button
+                type="button"
+                className="dialog-btn dialog-btn--secondary"
+                onClick={() => setShowRestockModal(false)}
               >
                 Cancel
               </Button>

@@ -409,8 +409,11 @@
   margin-top: 20px;
 }
 .warehousetable .table-header-cell {
-  padding-left: 5px;
+  padding-left: 2px;
 }
 .warehousetable .table-header-cell:first-child {
-  padding-left: 16px;
+  padding-left: 19px;
+}
+.customers-view {
+  margin-bottom: 20px;
 }

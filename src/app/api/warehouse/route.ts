@@ -55,3 +55,75 @@ export async function POST(req: Request) {
     );
   }
 }
+export async function PATCH(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, name, part_number, quantity, min_quantity, price, supplier } =
+      body;
+
+    const partId = Number(id);
+
+    if (!partId || Number.isNaN(partId)) {
+      return NextResponse.json({ error: "Invalid part ID" }, { status: 400 });
+    }
+
+    const updatedPart = await prisma.part
+      .update({
+        where: { id: partId },
+        data: {
+          name,
+          part_number,
+          quantity,
+          min_quantity,
+          price,
+          supplier,
+        },
+      })
+      .catch((err) => {
+        console.error("Prisma update error", err);
+        return null;
+      });
+
+    if (!updatedPart) {
+      return NextResponse.json({ error: "Part not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedPart, { status: 200 });
+  } catch (error) {
+    console.error("PATCH /api/warehouse error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+export async function DELETE(req: Request) {
+  try {
+    const body = await req.json();
+    const { id } = body;
+    const partId = Number(id);
+
+    if (!partId || Number.isNaN(partId)) {
+      return NextResponse.json({ error: "Invalid part ID" }, { status: 400 });
+    }
+    const deletedUser = await prisma.part
+      .delete({ where: { id: partId } })
+      .catch((err) => {
+        console.error("Prisma delete error", err);
+        return null;
+      });
+    if (!deletedUser) {
+      return NextResponse.json({ error: "Part not found" }, { status: 404 });
+    }
+    return NextResponse.json(
+      { message: "User deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("DELETE /api/warehouse error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
