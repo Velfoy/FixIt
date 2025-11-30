@@ -3,16 +3,30 @@ import prisma from "@/lib/prisma";
 import type { Customer } from "@/types/customer";
 
 // GET /api/customers
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const url = new URL(req.url);
+    const minimal = url.searchParams.get("minimal") === "true";
+
+    if (minimal) {
+      // Return only minimal customer data
+      const minimalCustomers = await prisma.customer.findMany({
+        include: { users: true },
+      });
+
+      const customersMinimal = minimalCustomers.map((c) => ({
+        id: c.id,
+        first_name: c.users?.first_name || "",
+        last_name: c.users?.last_name || "",
+        email: c.users?.email || "",
+      }));
+
+      return NextResponse.json(customersMinimal, { status: 200 });
+    }
+
+    // Full customer data
     const usersWithCustomers = await prisma.users.findMany({
-      include: {
-        customer: {
-          include: {
-            vehicle: true,
-          },
-        },
-      },
+      include: { customer: { include: { vehicle: true } } },
     });
 
     const usersWithCustomerProfiles = usersWithCustomers.filter(

@@ -16,6 +16,7 @@ model branches {
   created_at DateTime    @default(now()) @db.Timestamp(6)
   updated_at DateTime    @default(now()) @db.Timestamp(6)
   employees  employees[]
+  vehicle    vehicle[]
 }
 
 model customer {
@@ -248,19 +249,31 @@ model users {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model vehicle {
-  id              Int             @id @default(autoincrement())
-  customer_id     Int?
-  brand           String          @db.VarChar(50)
-  model           String          @db.VarChar(50)
-  year            Int?
-  vin             String          @unique @db.VarChar(50)
-  license_plate   String?         @db.VarChar(20)
-  mileage         Int?
-  next_inspection DateTime?       @db.Date
-  created_at      DateTime        @default(now()) @db.Timestamp(6)
-  updated_at      DateTime        @default(now()) @db.Timestamp(6)
-  service_order   service_order[]
-  customer        customer?       @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                  Int             @id @default(autoincrement())
+  customer_id         Int?
+  brand               String          @db.VarChar(50)
+  model               String          @db.VarChar(50)
+  year                Int?
+  vin                 String          @unique @db.VarChar(50)
+  license_plate       String?         @db.VarChar(20)
+  mileage             Int?
+  next_inspection     DateTime?       @db.Date
+  created_at          DateTime        @default(now()) @db.Timestamp(6)
+  updated_at          DateTime        @default(now()) @db.Timestamp(6)
+  fuel_type           String?         @db.VarChar(20)
+  engine_size         String?         @db.VarChar(20)
+  transmission        String?         @db.VarChar(20)
+  body_type           String?         @db.VarChar(50)
+  color               String?         @db.VarChar(30)
+  last_service        DateTime?       @db.Date
+  next_service        DateTime?       @db.Date
+  service_interval_km Int?
+  insurance_expiry    DateTime?       @db.Date
+  status              String          @default("ACTIVE") @db.VarChar(20)
+  branch_id           Int?
+  service_order       service_order[]
+  branches            branches?       @relation(fields: [branch_id], references: [id])
+  customer            customer?       @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 enum document_type {
