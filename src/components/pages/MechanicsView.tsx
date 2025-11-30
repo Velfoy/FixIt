@@ -416,7 +416,7 @@ const MechanicsView = ({
         <DialogContent className="dialog-content">
           <DialogHeader>
             <DialogTitle className="dialog-title">
-              {editingMechanicId ? "Edit Customer" : "Add New Mechanic"}
+              {editingMechanicId ? "Edit Mechanic" : "Add New Mechanic"}
             </DialogTitle>
           </DialogHeader>
 
