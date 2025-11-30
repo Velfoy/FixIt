@@ -30,10 +30,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }: SidebarProps) => {
       <div className="sidebar-divider" />
 
       {/* Dashboard */}
-      <a href={`/${role}/dashboard`} className="sidebar-btn">
+      {/* <a href={`/${role}/dashboard`} className="sidebar-btn">
         <Home className="icon" />
         <span className="sidebar-text">Dashboard</span>
-      </a>
+      </a> */}
 
       {/* Admin-only */}
       {role === "admin" && (
@@ -94,10 +94,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }: SidebarProps) => {
       )}
 
       {/* Info */}
-      <a href={`/${role}/info`} className="sidebar-btn">
+      {/* <a href={`/${role}/info`} className="sidebar-btn">
         <Info className="icon" />
         <span className="sidebar-text">Info</span>
-      </a>
+      </a> */}
 
       <div className="sidebar-bottom">
         {/* Profile */}
