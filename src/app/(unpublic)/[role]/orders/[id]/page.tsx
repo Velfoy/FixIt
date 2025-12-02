@@ -1,7 +1,17 @@
-import React from "react";
+import { OrderDetailView } from "@/components/pages/OrderDetailView";
 
-const OrderPage = () => {
-  return <div>OrderPage</div>;
-};
+interface OrderPageProps {
+  params: {
+    id: string;
+  };
+}
 
-export default OrderPage;
+export default function OrderPage({ params }: OrderPageProps) {
+  const orderId = params.id;
+
+  return (
+    <div style={{ padding: 20, maxWidth: 900, margin: "0 auto" }}>
+      <OrderDetailView orderId={orderId} />
+    </div>
+  );
+}

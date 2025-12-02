@@ -45,5 +45,10 @@ export function isRouteAllowed(role: string, pageName?: string) {
   if (!pageName) return true; // no specific page requested
   const allowed = routeAccessMatrix[role];
   if (!allowed) return false;
-  return allowed.includes(pageName);
+
+  // Allow subroutes of allowed pages
+  return allowed.some(
+    (allowedPage) =>
+      pageName === allowedPage || pageName.startsWith(allowedPage + "/")
+  );
 }

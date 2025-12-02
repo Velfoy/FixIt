@@ -417,3 +417,117 @@
 .customers-view {
   margin-bottom: 20px;
 }
+
+.orders-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.orders-header h2 {
+  font-size: 20px;
+  margin: 0;
+}
+.orders-header p {
+  color: #555;
+  font-size: 14px;
+  margin: 2px 0 0;
+}
+.create-order-btn {
+  padding: 6px 12px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.create-order-btn:hover {
+  background: #555;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.order-card {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.2s;
+}
+.order-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-icon {
+  width: 60px;
+  height: 60px;
+  background: #eee;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.order-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.order-main {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.order-main h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.order-main span,
+.order-main p {
+  font-size: 12px;
+  color: #555;
+  margin: 2px 0;
+}
+.chevron {
+  font-size: 20px;
+  color: #aaa;
+}
+
+.order-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.status {
+  padding: 2px 6px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  border-radius: 6px;
+}

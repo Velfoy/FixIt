@@ -169,7 +169,7 @@ const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
 
   return (
     <div
-      className="users-view"
+      className="customers-view users-view"
       style={{ display: "flex", flexDirection: "column", gap: 16 }}
     >
       {/* Header */}
@@ -180,8 +180,13 @@ const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
           justifyContent: "space-between",
         }}
       >
-        <div>
-          <h2 className="text-xl font-semibold">User Management</h2>
+        <div className="customers-header-text">
+          <h2 className="customers-title text-xl font-semibold">
+            User Management
+          </h2>
+          <p className="customers-subtitle">
+            Manage and track user information
+          </p>
         </div>
 
         <Button onClick={() => setIsAddOpen(true)}>+ Add User</Button>

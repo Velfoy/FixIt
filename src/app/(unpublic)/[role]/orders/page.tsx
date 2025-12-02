@@ -1,12 +1,12 @@
+import { OrdersView } from "@/components/pages/OrdersView";
 import { authorizePage } from "@/lib/authorize";
 
 export default async function OrdersPage() {
   const session = await authorizePage(["client", "admin", "mechanic"]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">My Orders</h1>
-      <p>Welcome, {session.user.name}! Here are your orders.</p>
+    <div style={{ padding: 20, maxWidth: 900, margin: "0 auto" }}>
+      <OrdersView isAdmin={true} />
     </div>
   );
 }
