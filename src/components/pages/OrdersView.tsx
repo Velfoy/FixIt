@@ -4,9 +4,17 @@ import { useEffect, useState } from "react";
 import { CreateOrderModal } from "./CreateOrderModal";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
-import { Car, Phone, Plus } from "lucide-react";
+import {
+  Car,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Phone,
+  Plus,
+} from "lucide-react";
 import { ServiceOrders, StatusServiceOrder } from "@/types/serviceorders";
 import "@/styles/users.css";
+import "@/styles/orders.css";
 type CustomerOrder = {
   id: number;
   first_name: string;
@@ -39,7 +47,7 @@ export function OrdersView({
       total_cost: 850,
       created_at: new Date("2025-11-01T08:30:00Z").toISOString(),
       updated_at: new Date("2025-11-01T12:00:00Z").toISOString(),
-      progress: 65,
+      progress: 99,
       mechanicFirstName: "Mike",
       mechanicLastName: "Johnson",
     },
@@ -51,7 +59,7 @@ export function OrdersView({
       carYear: "2022",
       description: "Brake system replacement",
       status: "COMPLETED",
-      startDate: "2025-10-20T10:00:00Z",
+      startDate: "2025-10-24T10:00:00Z",
       endDate: "2025-10-22T16:00:00Z",
       total_cost: 1200,
       created_at: new Date("2025-10-20T09:45:00Z").toISOString(),
@@ -93,6 +101,40 @@ export function OrdersView({
       progress: 0,
       mechanicFirstName: "Alice",
       mechanicLastName: "Smith",
+    },
+    {
+      id: "5",
+      orderNumber: "SO-1001",
+      carBrand: "Porsche",
+      carModel: "911 Carrera",
+      carYear: "2023",
+      description: "Engine repair and oil change",
+      status: "READY",
+      startDate: "2025-11-01T09:00:00Z",
+      endDate: "2025-11-03T17:00:00Z",
+      total_cost: 850,
+      created_at: new Date("2025-11-01T08:30:00Z").toISOString(),
+      updated_at: new Date("2025-11-01T12:00:00Z").toISOString(),
+      progress: 65,
+      mechanicFirstName: "Mike",
+      mechanicLastName: "Johnson",
+    },
+    {
+      id: "6",
+      orderNumber: "SO-1001",
+      carBrand: "Porsche",
+      carModel: "911 Carrera",
+      carYear: "2023",
+      description: "Engine repair and oil change",
+      status: "CANCELLED",
+      startDate: "2025-11-01T09:00:00Z",
+      endDate: "2025-11-03T17:00:00Z",
+      total_cost: 850,
+      created_at: new Date("2025-11-01T08:30:00Z").toISOString(),
+      updated_at: new Date("2025-11-01T12:00:00Z").toISOString(),
+      progress: 65,
+      mechanicFirstName: "Mike",
+      mechanicLastName: "Johnson",
     },
   ]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(
@@ -152,9 +194,24 @@ export function OrdersView({
 
   function openAddModal() {
     resetForm();
+    setShowCreateModal(true);
     setSelectedOrderId(null);
     setShowAddOrder(true);
   }
+  const STATUS_MAP: Record<
+    StatusServiceOrder,
+    { label: string; className: string }
+  > = {
+    NEW: { label: "New order", className: "status-new" },
+    IN_PROGRESS: { label: "In progress", className: "status-in-progress" },
+    WAITING_FOR_PARTS: {
+      label: "Waiting for parts",
+      className: "status-waiting",
+    },
+    READY: { label: "Ready for pickup", className: "status-ready" },
+    COMPLETED: { label: "Completed", className: "status-completed" },
+    CANCELLED: { label: "Cancelled", className: "status-cancelled" },
+  };
 
   return (
     <div className="customers-view">
@@ -177,41 +234,103 @@ export function OrdersView({
             {orders?.map((order) => (
               <div
                 key={order.id}
-                className="customer-row"
+                className="customer-row paddingBottom"
                 onClick={() => handleSelectOrder(order.id)}
               >
-                <div className="customer-avatar">
+                <div
+                  className="customer-avatar"
+                  style={{ background: "#4d0000" }}
+                >
                   <span className="customer-avatar-letter">
-                    {order.mechanicFirstName.charAt(0)}
+                    <Car className="icon-sm" />
                   </span>
                 </div>
 
                 <div className="customer-main">
-                  <div className="customer-main-header">
-                    <h3 className="customer-name">{order.mechanicLastName}</h3>
+                  <div className="customer-main-header order-header">
+                    <h3 className="customer-name">
+                      {order.carBrand} {order.carModel}
+                    </h3>
+                    <h2 className="order_car_year">{order.carYear} </h2>
+                    <div className="customer-total order_chevron">
+                      <p className="customer-total-orders">
+                        <ChevronRight className="icon-xs"></ChevronRight>
+                      </p>
+                    </div>
                   </div>
 
                   <div className="customer-meta">
                     <span className="customer-meta-item">
-                      <Phone className="icon-xs" />
-                      {order.carBrand}
+                      Order #{order.id}
                     </span>
                     <span className="customer-meta-item">
-                      <Car className="icon-xs" />
-                      {order.progress}
+                      {order.orderNumber}
                     </span>
                   </div>
-                </div>
+                  <div className="customer-meta">
+                    <span
+                      className="customer-meta-item"
+                      style={{ marginTop: "5px" }}
+                    >
+                      {order.description.length > 35
+                        ? order.description.slice(0, 35) + "..."
+                        : order.description}
+                    </span>
+                  </div>
 
-                <div className="customer-total">
-                  <p className="customer-total-orders">{order.startDate}</p>
+                  <div className="customer-meta status-order">
+                    <span className="customer-meta-item">
+                      <Clock
+                        className="icon-xs"
+                        style={{ marginRight: "7px" }}
+                      />
+
+                      <span className={STATUS_MAP[order.status].className}>
+                        {STATUS_MAP[order.status].label}
+                      </span>
+                    </span>
+                    <span className="customer-meta-item">
+                      Mechanic: {order.mechanicFirstName}{" "}
+                      {order.mechanicLastName}
+                    </span>
+                    <span className="customer-meta-item">
+                      Est:{" "}
+                      {Math.ceil(
+                        (new Date(order.endDate).getTime() -
+                          new Date(order.startDate).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      )}{" "}
+                      days
+                    </span>
+                    <span className="customer-meta-item mechanic-right">
+                      Price: {order.total_cost}$
+                    </span>
+                  </div>
+                  {order.status === "IN_PROGRESS" && (
+                    <div
+                      className="customer-meta"
+                      style={{ marginTop: "10px" }}
+                    >
+                      <div className="progress-header">
+                        <span className="customer-meta-item">Progress</span>
+                        <span className="progress-value-top">
+                          {order.progress}%
+                        </span>
+                      </div>
+                      <div className="progress-bar">
+                        <div
+                          className="progress-fill"
+                          style={{ width: `${order.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
       </Card>
-
       {showCreateModal && (
         <CreateOrderModal
           onClose={() => setShowCreateModal(false)}
