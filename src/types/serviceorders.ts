@@ -6,8 +6,8 @@ type ServiceOrders = {
   carYear: string;
   description: string;
   status: StatusServiceOrder;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   total_cost: number;
   created_at: string;
   updated_at: string;

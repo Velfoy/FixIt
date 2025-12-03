@@ -45,6 +45,7 @@ interface Customer {
   first_name: string;
   last_name: string;
   email: string;
+  phone: string;
 }
 
 interface CarsViewProps {
@@ -409,12 +410,12 @@ export default function CarsView({
                   ["Engine Size", selectedCar.engine_size],
                   ["Body Type", selectedCar.body_type],
                   ["Color", selectedCar.color],
-                  ["Last Service", selectedCar.last_service?.toString()],
-                  ["Next Service", selectedCar.next_service?.toString()],
-                  ["Next Inspection", selectedCar.next_inspection?.toString()],
+                  ["Last Service", formatDate(selectedCar.last_service)],
+                  ["Next Service", formatDate(selectedCar.next_service)],
+                  ["Next Inspection", formatDate(selectedCar.next_inspection)],
                   [
                     "Insurance Expiry",
-                    selectedCar.insurance_expiry?.toString(),
+                    formatDate(selectedCar.insurance_expiry),
                   ],
                   ["Service Interval (km)", selectedCar.service_interval_km],
                 ].map(([label, value]) => (

@@ -19,6 +19,7 @@ export async function GET(req: Request) {
         first_name: c.users?.first_name || "",
         last_name: c.users?.last_name || "",
         email: c.users?.email || "",
+        phone: c.users?.phone || "",
       }));
 
       return NextResponse.json(customersMinimal, { status: 200 });
