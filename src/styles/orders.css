@@ -89,7 +89,7 @@
   margin-left: auto;
   font-weight: 600;
   font-size: 14px;
-  color: #e20606;
+  color: #bebebe;
 }
 .progress-wrapper {
   display: flex;
@@ -157,4 +157,10 @@
 }
 .customers-header {
   margin-bottom: 0px;
+}
+.dialog-content-base {
+  overflow-x: hidden;
+}
+.dialog-input {
+  width: auto !important;
 }

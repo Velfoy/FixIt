@@ -38,8 +38,37 @@ function mapStatus(status: string | null): StatusCar {
 }
 
 // GET all cars
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const minimal = searchParams.get("minimal") === "true";
+
+    if (minimal) {
+      const vehicles = await prisma.vehicle.findMany({
+        select: {
+          id: true,
+          customer_id: true,
+          brand: true,
+          model: true,
+          year: true,
+          vin: true,
+          license_plate: true,
+        },
+        orderBy: { updated_at: "desc" },
+      });
+
+      const minimalVehicles = vehicles.map((v) => ({
+        id: v.id,
+        customer_id: v.customer_id,
+        brand: v.brand,
+        model: v.model,
+        year: v.year?.toString() || "",
+        vin: v.vin,
+        license_plate: v.license_plate || "",
+      }));
+
+      return NextResponse.json(minimalVehicles);
+    }
     const vehicles = await prisma.vehicle.findMany({
       include: {
         branches: true,

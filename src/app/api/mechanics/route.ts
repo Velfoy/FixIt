@@ -1,10 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import type { Mechanic, EmploymentType } from "@/types/mechanics";
 import { error } from "console";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const minimal = searchParams.get("minimal") === "true";
+
     const usersWithEmployees = await prisma.users.findMany({
       include: {
         employees: {
@@ -16,7 +19,16 @@ export async function GET() {
     const mechanicsUsers = usersWithEmployees.filter(
       (u) => u.employees !== null
     );
-
+    if (minimal) {
+      const minimalMechanics = mechanicsUsers.map((m) => ({
+        id: m.id,
+        first_name: m.first_name,
+        last_name: m.last_name,
+        email: m.email,
+        specialization: m.employees?.specialization,
+      }));
+      return NextResponse.json(minimalMechanics, { status: 200 });
+    }
     const mechanics: Mechanic[] = await Promise.all(
       mechanicsUsers.map(async (u) => {
         const emp = u.employees!;

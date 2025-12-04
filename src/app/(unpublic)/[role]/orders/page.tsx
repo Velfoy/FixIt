@@ -4,6 +4,21 @@ import { ServiceOrders } from "@/types/serviceorders";
 
 export default async function OrdersPage() {
   const session = await authorizePage(["client", "admin", "mechanic"]);
-  const dataServiceOrders: ServiceOrders[] = [];
-  return <OrdersView dataServiceOrders={dataServiceOrders} session={session} />;
+  if (session?.user?.role === "ADMIN") {
+    try {
+      const res = await fetch(`${process.env.NEXTAUTH_URL}/api/orders`, {
+        cache: "no-store",
+      });
+      const dataServiceOrders: ServiceOrders[] = res.ok ? await res.json() : [];
+      console.log(dataServiceOrders);
+      return (
+        <OrdersView dataServiceOrders={dataServiceOrders} session={session} />
+      );
+    } catch (error) {
+      console.error(error);
+      return <OrdersView dataServiceOrders={[]} session={session} />;
+    }
+  } else {
+    return <OrdersView dataServiceOrders={[]} session={session} />;
+  }
 }

@@ -53,238 +53,22 @@ export function OrdersView({
 }) {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [showAddOrder, setShowAddOrder] = useState(false);
-  const [orders, setOrders] = useState<ServiceOrders[]>([
-    {
-      id: "1",
-      orderNumber: "SO-1001",
-      carBrand: "Porsche",
-      carModel: "911 Carrera",
-      carYear: "2023",
-      description:
-        "Engine repair and oil change Engine repair and oil changeEngine repair and oil changeEngine repair and oil changeEngine repair and oil change",
-      issue: "Engine repair and oil change",
-      status: "IN_PROGRESS",
-      startDate: "2025-11-01T09:00:00Z",
-      endDate: "2025-11-03T17:00:00Z",
-      total_cost: 850,
-      created_at: new Date("2025-11-01T08:30:00Z").toISOString(),
-      updated_at: new Date("2025-11-01T12:00:00Z").toISOString(),
-      progress: 99,
-      priority: "LOW",
-      mechanicFirstName: "Mike",
-      mechanicLastName: "Johnson",
-    },
-    {
-      id: "2",
-      orderNumber: "SO-1002",
-      carBrand: "BMW",
-      carModel: "M4 Competition",
-      carYear: "2022",
-      description:
-        "Brake system replacement Brake system replacementBrake system replacementBrake system replacementBrake system replacement",
-      issue: "Brake system replacement",
-      status: "COMPLETED",
-      startDate: "2025-10-24T10:00:00Z",
-      endDate: "2025-10-22T16:00:00Z",
-      total_cost: 1200,
-      created_at: new Date("2025-10-20T09:45:00Z").toISOString(),
-      updated_at: new Date("2025-10-22T16:00:00Z").toISOString(),
-      progress: 100,
-      priority: "LOW",
-      mechanicFirstName: "Sarah",
-      mechanicLastName: "Williams",
-    },
-    {
-      id: "3",
-      orderNumber: "SO-1003",
-      carBrand: "Audi",
-      carModel: "RS7",
-      carYear: "2024",
-      description:
-        "Transmission service Transmission service Transmission service Transmission service Transmission service",
-      issue: "Transmission service ",
-      status: "WAITING_FOR_PARTS",
-      startDate: "2025-11-02T08:00:00Z",
-      endDate: "2025-11-10T17:00:00Z",
-      total_cost: 1500,
-      created_at: new Date("2025-11-02T07:30:00Z").toISOString(),
-      updated_at: new Date("2025-11-03T10:00:00Z").toISOString(),
-      progress: 40,
-      priority: "LOW",
-      mechanicFirstName: "John",
-      mechanicLastName: "Doe",
-    },
-    {
-      id: "4",
-      orderNumber: "SO-1004",
-      carBrand: "Tesla",
-      carModel: "Model S Plaid",
-      carYear: "2023",
-      description:
-        "Battery replacement Battery replacement Battery replacement Battery replacement Battery replacement Battery replacement",
-      issue: "Battery replacement ",
-      status: "NEW",
-      startDate: "2025-12-01T09:00:00Z",
-      endDate: "2025-12-05T17:00:00Z",
-      total_cost: 2000,
-      created_at: new Date("2025-12-01T08:00:00Z").toISOString(),
-      updated_at: new Date("2025-12-01T08:00:00Z").toISOString(),
-      progress: 0,
-      priority: "LOW",
-      mechanicFirstName: "Alice",
-      mechanicLastName: "Smith",
-    },
-    {
-      id: "5",
-      orderNumber: "SO-1001",
-      carBrand: "Porsche",
-      carModel: "911 Carrera",
-      carYear: "2023",
-      description:
-        "Engine repair and oil change Engine repair and oil change Engine repair and oil change Engine repair and oil change",
-      issue: "Engine repair and oil change",
-      status: "READY",
-      startDate: "2025-11-01T09:00:00Z",
-      endDate: "2025-11-03T17:00:00Z",
-      total_cost: 850,
-      created_at: new Date("2025-11-01T08:30:00Z").toISOString(),
-      updated_at: new Date("2025-11-01T12:00:00Z").toISOString(),
-      progress: 65,
-      priority: "LOW",
-      mechanicFirstName: "Mike",
-      mechanicLastName: "Johnson",
-    },
-    {
-      id: "6",
-      orderNumber: "SO-1001",
-      carBrand: "Porsche",
-      carModel: "911 Carrera",
-      carYear: "2023",
-      description:
-        "Engine repair and oil change Engine repair and oil change Engine repair and oil change Engine repair and oil change ",
-      issue: "Engine repair and oil change",
-      status: "CANCELLED",
-      startDate: "2025-11-01T09:00:00Z",
-      endDate: "2025-11-03T17:00:00Z",
-      total_cost: 850,
-      priority: "LOW",
-      created_at: new Date("2025-11-01T08:30:00Z").toISOString(),
-      updated_at: new Date("2025-11-01T12:00:00Z").toISOString(),
-      progress: 65,
-      mechanicFirstName: "Mike",
-      mechanicLastName: "Johnson",
-    },
-  ]);
+  const [orders, setOrders] = useState<ServiceOrders[]>(dataServiceOrders);
+  console.log(orders);
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(
     null
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Mock data for customers
-  const [existingCustomers, setExistingCustomers] = useState<CustomerOrder[]>([
-    {
-      id: 1,
-      first_name: "John",
-      last_name: "Doe",
-      email: "john@example.com",
-      phone: "123-456-7890",
-    },
-    {
-      id: 2,
-      first_name: "Jane",
-      last_name: "Smith",
-      email: "jane@example.com",
-      phone: "098-765-4321",
-    },
-    {
-      id: 3,
-      first_name: "Bob",
-      last_name: "Johnson",
-      email: "bob@example.com",
-      phone: "555-123-4567",
-    },
-  ]);
-
-  // Mock data for vehicles
-  const [vehicles, setVehicles] = useState<Vehicle[]>([
-    {
-      id: 1,
-      customer_id: 1,
-      brand: "Porsche",
-      model: "911 Carrera",
-      year: "2023",
-      vin: "WP0ZZZ99ZTS392001",
-      license_plate: "ABC123",
-    },
-    {
-      id: 2,
-      customer_id: 1,
-      brand: "BMW",
-      model: "M5 Competition",
-      year: "2022",
-      vin: "WBSJF0C05LCE31234",
-      license_plate: "XYZ789",
-    },
-    {
-      id: 3,
-      customer_id: 2,
-      brand: "Audi",
-      model: "RS7",
-      year: "2024",
-      vin: "WAUAFCF41MA012345",
-      license_plate: "DEF456",
-    },
-    {
-      id: 4,
-      customer_id: 3,
-      brand: "Tesla",
-      model: "Model S Plaid",
-      year: "2023",
-      vin: "5YJSA1E56MF432109",
-      license_plate: "GHI789",
-    },
-  ]);
-
-  // Mock data for mechanics
-  const [mechanics, setMechanics] = useState<Mechanic[]>([
-    {
-      id: 1,
-      first_name: "Mike",
-      last_name: "Johnson",
-      email: "mike@garage.com",
-      specialization: "Engine Specialist",
-    },
-    {
-      id: 2,
-      first_name: "Sarah",
-      last_name: "Williams",
-      email: "sarah@garage.com",
-      specialization: "Brake Systems",
-    },
-    {
-      id: 3,
-      first_name: "Alex",
-      last_name: "Chen",
-      email: "alex@garage.com",
-      specialization: "Electrical Systems",
-    },
-    {
-      id: 4,
-      first_name: "Emma",
-      last_name: "Rodriguez",
-      email: "emma@garage.com",
-      specialization: "Transmission",
-    },
-  ]);
-
-  // Filter vehicles based on selected customer
+  const [existingCustomers, setExistingCustomers] = useState<CustomerOrder[]>(
+    []
+  );
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [mechanics, setMechanics] = useState<Mechanic[]>([]);
   const filteredVehicles = selectedCustomerId
     ? vehicles.filter((vehicle) => vehicle.customer_id === selectedCustomerId)
     : [];
 
   useEffect(() => {
-    // Commented API calls - using mock data instead
-    /*
     fetch("/api/customers?minimal=true")
       .then((res) => res.json())
       .then((data) => {
@@ -292,20 +76,19 @@ export function OrdersView({
       })
       .catch(console.error);
 
-    fetch("/api/cars")
+    fetch("/api/cars?minimal=true")
       .then((res) => res.json())
       .then((data) => {
         setVehicles(data);
       })
       .catch(console.error);
 
-    fetch("/api/mechanics")
+    fetch("/api/mechanics?minimal=true")
       .then((res) => res.json())
       .then((data) => {
         setMechanics(data);
       })
       .catch(console.error);
-    */
   }, []);
 
   const [newOrder, setNewOrder] = useState<Partial<ServiceOrders>>({
@@ -344,9 +127,8 @@ export function OrdersView({
         mechanicId: selectedMechanicId,
       });
 
-      // Generate a new order based on form data
       const newOrderData: ServiceOrders = {
-        id: (orders.length + 1).toString(),
+        id: orders.length + 1,
         orderNumber: `SO-${1000 + orders.length + 1}`,
         carBrand: newOrder.carBrand || "",
         carModel: newOrder.carModel || "",
@@ -378,7 +160,7 @@ export function OrdersView({
     }, 1000);
   }
 
-  const handleSelectOrder = (orderId: string) => {
+  const handleSelectOrder = (orderId: number) => {
     const segments = window.location.pathname.split("/").filter(Boolean);
     const roleSegment = segments[0] || session?.user?.role;
     window.location.href = `/${roleSegment}/orders/${orderId}`;
@@ -425,7 +207,6 @@ export function OrdersView({
     CANCELLED: { label: "Cancelled", className: "status-cancelled" },
   };
 
-  // Handle vehicle selection
   const handleVehicleSelect = (vehicleId: number) => {
     setSelectedVehicleId(vehicleId);
     const selectedVehicle = vehicles.find((v) => v.id === vehicleId);
@@ -439,12 +220,10 @@ export function OrdersView({
     }
   };
 
-  // Handle mechanic selection
   const handleMechanicSelect = (mechanicId: number) => {
     setSelectedMechanicId(mechanicId);
   };
 
-  // Priority options
   const priorityOptions = [
     { value: "LOW", label: "Low" },
     { value: "MEDIUM", label: "Medium" },

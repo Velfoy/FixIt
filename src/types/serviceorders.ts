@@ -1,5 +1,5 @@
 type ServiceOrders = {
-  id: string;
+  id: number;
   orderNumber: string;
   carBrand: string;
   carModel: string;
