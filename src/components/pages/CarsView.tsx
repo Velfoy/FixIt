@@ -159,7 +159,7 @@ export default function CarsView({
       year: car.year ?? undefined,
       mileage: car.mileage ?? undefined,
       service_interval_km: car.service_interval_km ?? undefined,
-      customerId: car.customerId ?? undefined, // keep the selected customer
+      customerId: car.customerId ?? undefined,
     });
     setSelectedCarId(null);
     setShowAddCar(true);
@@ -640,7 +640,7 @@ export default function CarsView({
               </div>
 
               {/* Status */}
-              <div className="dialog-form-field">
+              {/* <div className="dialog-form-field">
                 <label className="dialog-field-label">
                   Latest order status
                 </label>
@@ -660,7 +660,7 @@ export default function CarsView({
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
 
               {/* Color, Engine, Body */}
               <div className="dialog-form-field">

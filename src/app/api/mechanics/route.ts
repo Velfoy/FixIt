@@ -20,14 +20,36 @@ export async function GET(request: NextRequest) {
       (u) => u.employees !== null
     );
     if (minimal) {
-      const minimalMechanics = mechanicsUsers.map((m) => ({
+      const minimalMechanics = await prisma.employees.findMany({
+        where: {
+          NOT: {
+            service_order: {
+              some: {
+                status: { notIn: ["COMPLETED", "CANCELLED"] },
+              },
+            },
+          },
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      const minimalMechanicsFormatted = minimalMechanics.map((m) => ({
         id: m.id,
-        first_name: m.first_name,
-        last_name: m.last_name,
-        email: m.email,
-        specialization: m.employees?.specialization,
+        first_name: m.users.first_name,
+        last_name: m.users.last_name,
+        email: m.users.email,
+        specialization: m.specialization,
       }));
-      return NextResponse.json(minimalMechanics, { status: 200 });
+      return NextResponse.json(minimalMechanicsFormatted, { status: 200 });
     }
     const mechanics: Mechanic[] = await Promise.all(
       mechanicsUsers.map(async (u) => {

@@ -10,7 +10,6 @@ export default async function OrdersPage() {
         cache: "no-store",
       });
       const dataServiceOrders: ServiceOrders[] = res.ok ? await res.json() : [];
-      console.log(dataServiceOrders);
       return (
         <OrdersView dataServiceOrders={dataServiceOrders} session={session} />
       );

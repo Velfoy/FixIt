@@ -164,3 +164,43 @@
 .dialog-input {
   width: auto !important;
 }
+
+.priority_LOW {
+  background: rgba(0, 128, 0, 0.1);
+  color: green;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.priority_NORMAL {
+  background: rgba(30, 144, 255, 0.1);
+  color: #1e90ff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.priority_HIGH {
+  background: rgba(255, 165, 0, 0.15);
+  color: orange;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.priority_URGENT {
+  background: rgba(255, 0, 0, 0.15);
+  color: red;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.delete_hover {
+  transition: all 0.2s ease-in-out;
+}
+.delete_hover:hover {
+  transform: translateY(-2px);
+  color: rgb(180, 180, 180);
+}

@@ -45,6 +45,15 @@ export async function GET(request: NextRequest) {
 
     if (minimal) {
       const vehicles = await prisma.vehicle.findMany({
+        where: {
+          NOT: {
+            service_order: {
+              some: {
+                status: { notIn: ["COMPLETED", "CANCELLED"] },
+              },
+            },
+          },
+        },
         select: {
           id: true,
           customer_id: true,

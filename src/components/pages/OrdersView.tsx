@@ -11,6 +11,7 @@ import {
   Clock,
   Phone,
   Plus,
+  Trash,
 } from "lucide-react";
 import { ServiceOrders, StatusServiceOrder } from "@/types/serviceorders";
 import "@/styles/users.css";
@@ -116,48 +117,53 @@ export function OrdersView({
   async function handleCreateOrder(e: FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
+    const payload = {
+      ...newOrder,
+      mechanicId: selectedMechanicId,
+      customerId: selectedCustomerId,
+      vehicleId: selectedVehicleId,
+    };
 
-    // Here you would make the API call to create the order
-    // For now, just simulate API call
-    setTimeout(() => {
-      console.log("Creating order with data:", {
-        ...newOrder,
-        customerId: selectedCustomerId,
-        vehicleId: selectedVehicleId,
-        mechanicId: selectedMechanicId,
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      const newOrderData: ServiceOrders = {
-        id: orders.length + 1,
-        orderNumber: `SO-${1000 + orders.length + 1}`,
-        carBrand: newOrder.carBrand || "",
-        carModel: newOrder.carModel || "",
-        carYear: newOrder.carYear || "",
-        description: newOrder.description || "",
-        issue: newOrder.issue || "",
-        status: newOrder.status as StatusServiceOrder,
-        startDate: newOrder.startDate || new Date().toISOString(),
-        endDate:
-          newOrder.endDate ||
-          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        total_cost: newOrder.total_cost || 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        progress: 0,
-        priority:
-          (newOrder.priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT") ||
-          "MEDIUM",
-        mechanicFirstName:
-          mechanics.find((m) => m.id === selectedMechanicId)?.first_name || "",
-        mechanicLastName:
-          mechanics.find((m) => m.id === selectedMechanicId)?.last_name || "",
-      };
-
-      setOrders([...orders, newOrderData]);
-      setIsSubmitting(false);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to create order");
+      }
+      const createdOrder: ServiceOrders = await response.json();
+      setOrders((prev) => [...prev, createdOrder]);
       setShowAddOrder(false);
       resetForm();
-    }, 1000);
+    } catch (error) {
+      console.error(error);
+      alert("Error creating order");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+  async function handleDeleteOrder(orderId: number) {
+    if (!confirm("Are you sure you want to delete this car?")) return;
+    try {
+      const res = await fetch(`/api/orders`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: orderId }),
+      });
+      if (res.ok) {
+        setOrders((prev) => prev.filter((c) => c.id !== orderId));
+        if (selectedOrderId === orderId) setSelectedOrderId(null);
+      } else {
+        alert("Failed to delete car.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting order.");
+    }
   }
 
   const handleSelectOrder = (orderId: number) => {
@@ -226,7 +232,7 @@ export function OrdersView({
 
   const priorityOptions = [
     { value: "LOW", label: "Low" },
-    { value: "MEDIUM", label: "Medium" },
+    { value: "NORMAL", label: "Normal" },
     { value: "HIGH", label: "High" },
     { value: "URGENT", label: "Urgent" },
   ];
@@ -269,10 +275,25 @@ export function OrdersView({
                     <h3 className="customer-name">
                       {order.carBrand} {order.carModel}
                     </h3>
+
                     <h2 className="order_car_year">{order.carYear} </h2>
+                    <div className=" order_car_year ">
+                      Priority:{" "}
+                      <span className={`priority_${order.priority}`}>
+                        {order.priority}
+                      </span>
+                    </div>
                     <div className="customer-total order_chevron">
                       <p className="customer-total-orders">
                         <ChevronRight className="icon-xs"></ChevronRight>
+                        <Trash
+                          className="icon-xs delete_hover"
+                          style={{ marginLeft: "5px" }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteOrder(order.id);
+                          }}
+                        ></Trash>
                       </p>
                     </div>
                   </div>
