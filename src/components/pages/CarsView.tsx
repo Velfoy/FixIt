@@ -639,29 +639,6 @@ export default function CarsView({
                 />
               </div>
 
-              {/* Status */}
-              {/* <div className="dialog-form-field">
-                <label className="dialog-field-label">
-                  Latest order status
-                </label>
-                <select
-                  className="dialog-input"
-                  value={newCar.status || ""}
-                  onChange={(e) =>
-                    setNewCar((prev) => ({
-                      ...prev,
-                      status: e.target.value as StatusCar,
-                    }))
-                  }
-                >
-                  {carStatuses.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
-
               {/* Color, Engine, Body */}
               <div className="dialog-form-field">
                 <label className="dialog-field-label">Color</label>

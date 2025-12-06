@@ -204,3 +204,81 @@
   transform: translateY(-2px);
   color: rgb(180, 180, 180);
 }
+
+.edit-button_order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease,
+    border-color 0.2s ease, color 0.2s ease;
+
+  padding: 6px 18px;
+
+  background: #470202;
+  color: #ffffff;
+  border-color: rgba(51, 51, 51, 0.7);
+}
+
+.edit-button_order:hover {
+  transform: translateY(-2px);
+}
+.icon-xxx {
+  height: 18px;
+}
+.left_order {
+  display: flex;
+}
+.left_order * {
+  align-content: center;
+}
+.stats-label_order {
+  font-size: 12px;
+  color: #d1dbe2ce;
+  margin: 0px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.stats-value_order {
+  margin: 0px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+.order-card_id_2 {
+  justify-content: flex-start;
+}
+.order-card_id {
+  justify-content: center;
+}
+.order-stats-grid {
+  gap: 16px;
+  margin-bottom: 24px;
+  display: grid;
+}
+.order_desc {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.icon-mech {
+  height: 14px;
+}
+.mech_phone {
+  margin-bottom: 10px;
+}
+@media (min-width: 768px) {
+  .order-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

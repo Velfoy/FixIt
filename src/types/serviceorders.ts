@@ -4,6 +4,7 @@ type ServiceOrders = {
   carBrand: string;
   carModel: string;
   carYear: string;
+  carLicensePlate: string;
   issue: string;
   description: string;
   status: StatusServiceOrder;
@@ -25,5 +26,25 @@ export type StatusServiceOrder =
   | "READY"
   | "COMPLETED"
   | "CANCELLED";
-
-export type { ServiceOrders };
+type Order = {
+  id: number;
+  orderNumber: string;
+  carBrand: string;
+  carModel: string;
+  carYear: string;
+  carLicensePlate: string;
+  issue: string;
+  description: string;
+  status: StatusServiceOrder;
+  endDate: string;
+  total_cost: number;
+  progress: number;
+  priority: string;
+  mechanicFirstName: string;
+  mechanicEmail: string;
+  mechanicPhone: string;
+  mechanicLastName: string;
+  task: Task[];
+};
+export type Task = {};
+export type { ServiceOrders, Order };
