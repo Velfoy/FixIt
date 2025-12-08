@@ -146,7 +146,7 @@ export function OrdersView({
     }
   }
   async function handleDeleteOrder(orderId: number) {
-    if (!confirm("Are you sure you want to delete this car?")) return;
+    if (!confirm("Are you sure you want to delete this order?")) return;
     try {
       const res = await fetch(`/api/orders`, {
         method: "DELETE",

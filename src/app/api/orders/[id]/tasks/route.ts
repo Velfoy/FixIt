@@ -2,6 +2,21 @@ import prisma from "@/lib/prisma";
 import { order_status } from "@/generated/prisma/enums";
 import { NextRequest, NextResponse } from "next/server";
 
+// Helper: compute progress % from task statuses
+async function computeOrderProgress(orderId: number): Promise<number> {
+  const tasks = await prisma.service_task.findMany({
+    where: { service_order_id: orderId },
+    select: { status: true },
+  });
+  if (tasks.length === 0) return 0;
+  // Progress: count COMPLETED tasks
+  // If there are N tasks total and M are COMPLETED, progress = (M / N) * 100
+  const completedCount = tasks.filter(
+    (t) => t.status === "COMPLETED" || t.status === "READY"
+  ).length;
+  return Math.round((completedCount / tasks.length) * 100);
+}
+
 export async function POST(req: NextRequest, context: any) {
   try {
     const params = await context.params;
@@ -100,6 +115,13 @@ export async function POST(req: NextRequest, context: any) {
     const created = await prisma.service_task.create({
       data: payload as any,
       include: { employees: { include: { users: true } } },
+    });
+
+    // Update order progress after creating task
+    const newProgress = await computeOrderProgress(orderId);
+    await prisma.service_order.update({
+      where: { id: orderId },
+      data: { progress: newProgress },
     });
 
     return NextResponse.json(created);

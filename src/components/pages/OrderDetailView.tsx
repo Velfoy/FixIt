@@ -40,6 +40,7 @@ export function OrderDetailView({
     dataServiceOrder ?? null
   );
   const [showEditOrder, setShowEditOrder] = useState(false);
+  const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editedOrder, setEditedOrder] = useState<Partial<Order>>({});
   const [showAddTask, setShowAddTask] = useState(false);
@@ -47,7 +48,12 @@ export function OrderDetailView({
   const [taskDescription, setTaskDescription] = useState("");
   const [taskMechanicId, setTaskMechanicId] = useState<number | null>(null);
   const [taskPriority, setTaskPriority] = useState<string>("LOW");
+  const [taskStatus, setTaskStatus] = useState<string>("NEW");
   const [mechanics, setMechanics] = useState<any[]>([]);
+  const [showEditTask, setShowEditTask] = useState(false);
+  const [editingTask, setEditingTask] = useState<any | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<any | null>(null);
 
   function resetForm() {
     setEditedOrder({});
@@ -58,6 +64,7 @@ export function OrderDetailView({
     setTaskDescription("");
     setTaskMechanicId(null);
     setTaskPriority("LOW");
+    setTaskStatus("NEW");
     // fetch mechanics minimal
     fetch("/api/mechanics?minimal=true")
       .then((r) => r.json())
@@ -76,32 +83,36 @@ export function OrderDetailView({
         description: taskDescription,
         mechanicId: taskMechanicId,
         priority: taskPriority,
-        status: "NEW",
+        status: taskStatus,
       };
 
-      // API call commented out per request — local mock append instead
-      /*
-      const res = await fetch(`/api/orders/${serviceOrder.id}/tasks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to create task");
-      const created = await res.json();
-      */
-
-      const mechanic = mechanics.find((m) => m.id === taskMechanicId) || {};
-      const created = {
-        id: Date.now(),
-        mechanicFirstName: mechanic.first_name || "",
-        mechanicLastName: mechanic.last_name || "",
-        title: taskTitle,
-        description: taskDescription,
-        status: "NEW",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        priority: taskPriority,
-      } as any;
+      // Try to persist to API first; fall back to local mock on failure
+      let created: any = null;
+      try {
+        const res = await fetch(`/api/orders/${serviceOrder.id}/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        created = await res.json();
+      } catch (apiErr) {
+        console.warn("Task API failed, falling back to local mock:", apiErr);
+        const mechanic = mechanics.find((m) => m.id === taskMechanicId) || {};
+        created = {
+          id: Date.now(),
+          mechanic_id: taskMechanicId,
+          mechanicId: taskMechanicId,
+          mechanicFirstName: mechanic.first_name || "",
+          mechanicLastName: mechanic.last_name || "",
+          title: taskTitle,
+          description: taskDescription,
+          status: taskStatus || "NEW",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          priority: taskPriority,
+        } as any;
+      }
 
       setServiceOrder((prev) =>
         prev ? { ...prev, task: [...(prev.task || []), created] } : prev
@@ -110,6 +121,143 @@ export function OrderDetailView({
     } catch (err) {
       console.error(err);
       alert("Failed to create task");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function openEditTask(task: any) {
+    setEditingTask(task);
+    setTaskTitle(task.title || "");
+    setTaskDescription(task.description || "");
+    setTaskMechanicId(task.mechanic_id ?? task.mechanicId ?? null);
+    setTaskStatus(task.status || "NEW");
+    setTaskPriority(task.priority || "LOW");
+    // fetch mechanics if needed
+    fetch("/api/mechanics?minimal=true")
+      .then((r) => r.json())
+      .then((data) => {
+        setMechanics(data || []);
+        // if task doesn't include mechanic id, try to match by name so select shows assigned mechanic
+        if (!task.mechanic_id && task.mechanicFirstName) {
+          const found = (data || []).find(
+            (m: any) =>
+              `${m.first_name || ""}`.trim() ===
+                `${task.mechanicFirstName || ""}`.trim() &&
+              `${m.last_name || ""}`.trim() ===
+                `${task.mechanicLastName || ""}`.trim()
+          );
+          if (found) setTaskMechanicId(found.id);
+        }
+      })
+      .catch((e) => console.error(e));
+    setShowEditTask(true);
+  }
+
+  async function handleUpdateTask(e: FormEvent) {
+    e.preventDefault();
+    if (!serviceOrder || !editingTask) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        title: taskTitle,
+        description: taskDescription,
+        mechanicId: taskMechanicId,
+        priority: taskPriority,
+        status: taskStatus,
+      };
+
+      // Try to update via API; fall back to local update on failure
+      let updated: any = null;
+      try {
+        const res = await fetch(
+          `/api/orders/${serviceOrder.id}/tasks/${editingTask.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        updated = await res.json();
+      } catch (apiErr) {
+        console.warn(
+          "Task update API failed, falling back to local update:",
+          apiErr
+        );
+        // Apply local update
+        updated = {
+          ...editingTask,
+          title: taskTitle,
+          description: taskDescription,
+          priority: taskPriority,
+          status: taskStatus,
+          mechanic_id: taskMechanicId,
+          mechanicId: taskMechanicId,
+          mechanicFirstName:
+            (mechanics.find((m) => m.id === taskMechanicId) || {}).first_name ||
+            editingTask.mechanicFirstName,
+          mechanicLastName:
+            (mechanics.find((m) => m.id === taskMechanicId) || {}).last_name ||
+            editingTask.mechanicLastName,
+        };
+      }
+
+      // Update local state with either server response or local object
+      setServiceOrder((prev) => {
+        if (!prev) return prev;
+        const updatedTasks = (prev.task || []).map((t: any) =>
+          t.id === editingTask.id ? updated : t
+        );
+        return { ...prev, task: updatedTasks };
+      });
+
+      setShowEditTask(false);
+      setEditingTask(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update task");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function openDeleteConfirm(task: any) {
+    setTaskToDelete(task);
+    setShowDeleteConfirm(true);
+  }
+
+  async function handleDeleteTask() {
+    if (!serviceOrder || !taskToDelete) return;
+    setIsSubmitting(true);
+    try {
+      // Try to delete on server first; fall back to local removal
+      try {
+        const res = await fetch(
+          `/api/orders/${serviceOrder.id}/tasks/${taskToDelete.id}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+      } catch (apiErr) {
+        console.warn("Task delete API failed, removing locally:", apiErr);
+      }
+
+      // Remove locally
+      setServiceOrder((prev) => {
+        if (!prev) return prev;
+        const updated = (prev.task || []).filter(
+          (t: any) => t.id !== taskToDelete.id
+        );
+        return { ...prev, task: updated };
+      });
+
+      setShowDeleteConfirm(false);
+      setTaskToDelete(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete task");
     } finally {
       setIsSubmitting(false);
     }
@@ -206,6 +354,88 @@ export function OrderDetailView({
     setLineHeights(heights);
   }, [serviceOrder]);
 
+  // Compute order status dynamically from tasks
+  useEffect(() => {
+    if (!serviceOrder) return;
+    const tasks: any[] = serviceOrder.task || [];
+    // Do not override terminal statuses
+    if (
+      serviceOrder.status === "COMPLETED" ||
+      serviceOrder.status === "CANCELLED"
+    )
+      return;
+
+    let newStatus: string = "NEW";
+    if (tasks.length === 0) {
+      newStatus = "NEW";
+    } else if (tasks.some((t) => t.status === "WAITING_FOR_PARTS")) {
+      newStatus = "WAITING_FOR_PARTS";
+    } else if (tasks.some((t) => t.status === "IN_PROGRESS")) {
+      newStatus = "IN_PROGRESS";
+    } else if (tasks.some((t) => t.status === "READY")) {
+      newStatus = "READY";
+    } else if (tasks.every((t) => t.status === "COMPLETED")) {
+      newStatus = "COMPLETED";
+    } else {
+      newStatus = "IN_PROGRESS";
+    }
+
+    if (newStatus !== serviceOrder.status) {
+      // update locally
+      setServiceOrder((prev) =>
+        prev ? { ...prev, status: newStatus as any } : prev
+      );
+      // try persist to server (best-effort)
+      (async () => {
+        try {
+          const res = await fetch(`/api/orders/${serviceOrder.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus }),
+          });
+          if (!res.ok) {
+            console.warn("Failed to persist computed order status");
+          }
+        } catch (err) {
+          console.warn("Failed to persist computed order status", err);
+        }
+      })();
+    }
+  }, [serviceOrder?.task]);
+
+  const isTerminalStatus = (s?: string) =>
+    s === "COMPLETED" || s === "CANCELLED";
+
+  async function handleSetOrderStatus(newStatus: "COMPLETED" | "CANCELLED") {
+    if (!serviceOrder) return;
+    setIsSubmitting(true);
+    try {
+      // optimistically update
+      setServiceOrder((prev) => (prev ? { ...prev, status: newStatus } : prev));
+
+      const res = await fetch(`/api/orders/${serviceOrder.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error("Failed to update order status");
+      const updated: Order = await res.json();
+      setServiceOrder(updated);
+      setShowStatusDialog(false);
+      // when terminal, close other modals
+      if (isTerminalStatus(newStatus)) {
+        setShowAddTask(false);
+        setShowEditOrder(false);
+        setShowEditTask(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to change order status");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   const statusMap: Record<StatusServiceOrder, string> = {
     NEW: "grafic-new",
     IN_PROGRESS: "grafic-in_progress",
@@ -227,12 +457,33 @@ export function OrderDetailView({
         </Button>
         <div className="left_order">
           <span
+            role={isTerminalStatus(serviceOrder?.status) ? undefined : "button"}
+            onClick={() => {
+              if (serviceOrder && !isTerminalStatus(serviceOrder.status))
+                setShowStatusDialog(true);
+            }}
             className={STATUS_MAP[serviceOrder?.status || "NEW"].className}
-            style={{ fontSize: "14px", marginRight: "10px" }}
+            style={{
+              fontSize: "14px",
+              marginRight: "10px",
+              cursor:
+                serviceOrder && !isTerminalStatus(serviceOrder.status)
+                  ? "pointer"
+                  : "default",
+            }}
           >
             {STATUS_MAP[serviceOrder?.status || "NEW"].label}
           </span>
-          <button onClick={handleEdit} className="edit-button_order">
+
+          <button
+            onClick={() => {
+              if (!isTerminalStatus(serviceOrder?.status)) handleEdit();
+            }}
+            className={`edit-button_order ${
+              isTerminalStatus(serviceOrder?.status) ? "disabled" : ""
+            }`}
+            disabled={isTerminalStatus(serviceOrder?.status)}
+          >
             <Edit className="icon-xxx" />
             <span>Edit Order</span>
           </button>
@@ -240,7 +491,12 @@ export function OrderDetailView({
       </div>
       <div className="customers-header">
         <div className="customers-header-text">
-          <h1 className="customers-title">Order #{serviceOrder?.id}</h1>
+          <h1 className="customers-title">
+            Order #{serviceOrder?.id}{" "}
+            <span style={{ fontSize: "14px", marginLeft: "10px" }}>
+              {serviceOrder?.issue}
+            </span>
+          </h1>
           <p className="customers-subtitle">
             {serviceOrder?.carBrand} {serviceOrder?.carModel} (
             {serviceOrder?.carYear}) {serviceOrder?.orderNumber}
@@ -344,7 +600,16 @@ export function OrderDetailView({
           >
             <span>Order Status Timeline / Tasks</span>
             <div className="left_order">
-              <button onClick={openAddTask} className="edit-button_order">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isTerminalStatus(serviceOrder?.status)) openAddTask();
+                }}
+                className={`edit-button_order ${
+                  isTerminalStatus(serviceOrder?.status) ? "disabled" : ""
+                }`}
+                disabled={isTerminalStatus(serviceOrder?.status)}
+              >
                 <Plus className="icon-xxx" />
                 <span>Add Task</span>
               </button>
@@ -378,10 +643,7 @@ export function OrderDetailView({
 
                   <div className="customer-main">
                     <div className="customer-main-header">
-                      <h3 className="customer-name">
-                        {task.mechanicFirstName} {task.mechanicLastName} –{" "}
-                        {task.title}
-                      </h3>
+                      <h3 className="customer-name">{task.title}</h3>
                     </div>
 
                     <div className="customer-meta">
@@ -432,21 +694,32 @@ export function OrderDetailView({
                       </span>
                     </div>
                   </div>
-
-                  <div className="customer-actions">
-                    <button
-                      className="icon-btn icon-btn--edit"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Pencil className="icon-xxx" />
-                    </button>
-                    <button
-                      className="icon-btn icon-btn--edit"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Trash className="icon-xxx" />
-                    </button>
-                  </div>
+                  {isTerminalStatus(serviceOrder?.status) ? null : (
+                    <div className="customer-actions">
+                      <button
+                        className="icon-btn icon-btn--edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isTerminalStatus(serviceOrder?.status))
+                            openEditTask(task);
+                        }}
+                        disabled={isTerminalStatus(serviceOrder?.status)}
+                      >
+                        <Pencil className="icon-xxx" />
+                      </button>
+                      <button
+                        className="icon-btn icon-btn--edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isTerminalStatus(serviceOrder?.status))
+                            openDeleteConfirm(task);
+                        }}
+                        disabled={isTerminalStatus(serviceOrder?.status)}
+                      >
+                        <Trash className="icon-xxx" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -522,6 +795,21 @@ export function OrderDetailView({
                   <option value="URGENT">Urgent</option>
                 </select>
               </div>
+              <div className="dialog-form-field">
+                <label className="dialog-field-label">Status</label>
+                <select
+                  className="dialog-input"
+                  value={taskStatus}
+                  onChange={(e) => setTaskStatus(e.target.value)}
+                >
+                  <option value="NEW">New</option>
+                  <option value="IN_PROGRESS">In progress</option>
+                  <option value="WAITING_FOR_PARTS">Waiting for parts</option>
+                  <option value="READY">Ready</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </div>
             </div>
 
             <div className="dialog-actions">
@@ -541,6 +829,148 @@ export function OrderDetailView({
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+      {/* Edit Task Dialog (frontend-only) */}
+      <Dialog
+        open={showEditTask}
+        onOpenChange={(open) => {
+          setShowEditTask(open);
+          if (!open) setEditingTask(null);
+        }}
+      >
+        <DialogContent className="dialog-content">
+          <DialogHeader>
+            <DialogTitle className="dialog-title">Edit Task</DialogTitle>
+          </DialogHeader>
+
+          <form
+            className="dialog-body dialog-body--form"
+            onSubmit={handleUpdateTask}
+          >
+            <div className="dialog-form-grid">
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Title *</label>
+                <Input
+                  className="dialog-input"
+                  value={taskTitle}
+                  onChange={(e) => setTaskTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Description</label>
+                <textarea
+                  className="dialog-input"
+                  style={{ minHeight: "100px" }}
+                  value={taskDescription}
+                  onChange={(e) => setTaskDescription(e.target.value)}
+                />
+              </div>
+              <div className="dialog-form-field">
+                <label className="dialog-field-label">Mechanic</label>
+                <Input
+                  className="dialog-input"
+                  value={(mechanics.find((m) => m.id === taskMechanicId)
+                    ? `${
+                        mechanics.find((m) => m.id === taskMechanicId)
+                          ?.first_name || ""
+                      } ${
+                        mechanics.find((m) => m.id === taskMechanicId)
+                          ?.last_name || ""
+                      }`
+                    : `${editingTask?.mechanicFirstName || ""} ${
+                        editingTask?.mechanicLastName || ""
+                      }`
+                  ).trim()}
+                  disabled
+                />
+              </div>
+              <div className="dialog-form-field">
+                <label className="dialog-field-label">Priority</label>
+                <select
+                  className="dialog-input"
+                  value={taskPriority}
+                  onChange={(e) => setTaskPriority(e.target.value)}
+                >
+                  <option value="LOW">Low</option>
+                  <option value="NORMAL">Normal</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+              </div>
+              <div className="dialog-form-field">
+                <label className="dialog-field-label">Status</label>
+                <select
+                  className="dialog-input"
+                  value={taskStatus}
+                  onChange={(e) => setTaskStatus(e.target.value)}
+                >
+                  <option value="NEW">New</option>
+                  <option value="IN_PROGRESS">In progress</option>
+                  <option value="WAITING_FOR_PARTS">Waiting for parts</option>
+                  <option value="READY">Ready</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </div>
+            </div>
+            <div className="dialog-actions">
+              <Button
+                type="submit"
+                className="dialog-btn dialog-btn--primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save"}
+              </Button>
+              <Button
+                type="button"
+                className="dialog-btn dialog-btn--secondary"
+                onClick={() => {
+                  setShowEditTask(false);
+                  setEditingTask(null);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation (frontend-only) */}
+      <Dialog
+        open={showDeleteConfirm}
+        onOpenChange={(open) => {
+          if (!open) setTaskToDelete(null);
+          setShowDeleteConfirm(open);
+        }}
+      >
+        <DialogContent className="dialog-content">
+          <DialogHeader>
+            <DialogTitle className="dialog-title">Delete Task</DialogTitle>
+          </DialogHeader>
+          <div className="dialog-body">
+            <p>Are you sure you want to delete this task?</p>
+            <div className="dialog-actions">
+              <Button
+                className="dialog-btn dialog-btn--primary"
+                onClick={handleDeleteTask}
+                disabled={isSubmitting}
+              >
+                Delete
+              </Button>
+              <Button
+                className="dialog-btn dialog-btn--secondary"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setTaskToDelete(null);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
       <Dialog
@@ -679,6 +1109,50 @@ export function OrderDetailView({
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+      {/* Status change confirmation dialog */}
+      <Dialog
+        open={showStatusDialog}
+        onOpenChange={(open) => {
+          setShowStatusDialog(open);
+        }}
+      >
+        <DialogContent className="dialog-content">
+          <DialogHeader>
+            <DialogTitle className="dialog-title">
+              Change Order Status
+            </DialogTitle>
+          </DialogHeader>
+          <div className="dialog-body">
+            <p>
+              Do you want to cancel this order or mark it as completed? Once an
+              order is cancelled or completed it cannot be edited or have tasks
+              added.
+            </p>
+            <div className="dialog-actions">
+              <Button
+                className="dialog-btn dialog-btn--primary"
+                onClick={() => handleSetOrderStatus("COMPLETED")}
+                disabled={isSubmitting}
+              >
+                Complete Order
+              </Button>
+              <Button
+                className="dialog-btn dialog-btn--danger"
+                onClick={() => handleSetOrderStatus("CANCELLED")}
+                disabled={isSubmitting}
+              >
+                Cancel Order
+              </Button>
+              <Button
+                className="dialog-btn dialog-btn--secondary"
+                onClick={() => setShowStatusDialog(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
