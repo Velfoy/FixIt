@@ -3,15 +3,12 @@ import { order_status } from "@/generated/prisma/enums";
 import { NextRequest, NextResponse } from "next/server";
 import { PriorityOrder } from "@/types/serviceorders";
 
-// Helper: compute progress % from task statuses
 async function computeOrderProgress(orderId: number): Promise<number> {
   const tasks = await prisma.service_task.findMany({
     where: { service_order_id: orderId },
     select: { status: true },
   });
   if (tasks.length === 0) return 0;
-  // Progress: count COMPLETED and READY tasks
-  // If there are N tasks total and M are COMPLETED or READY, progress = (M / N) * 100
   const completedCount = tasks.filter(
     (t) => t.status === "COMPLETED" || t.status === "READY"
   ).length;
@@ -81,7 +78,6 @@ export async function PUT(req: NextRequest, context: any) {
     const normalizedStatus =
       (order_status as any)[finalStatus] || order_status.NEW;
 
-    // Ensure the task belongs to the order
     const existing = await prisma.service_task.findUnique({
       where: { id: taskId },
     });
@@ -109,7 +105,6 @@ export async function PUT(req: NextRequest, context: any) {
       include: { employees: { include: { users: true } } },
     });
 
-    // Update order progress based on task statuses
     const newProgress = await computeOrderProgress(orderId);
     await prisma.service_order.update({
       where: { id: orderId },
@@ -146,7 +141,6 @@ export async function DELETE(req: NextRequest, context: any) {
 
     await prisma.service_task.delete({ where: { id: taskId } });
 
-    // Update order progress after deleting task
     const newProgress = await computeOrderProgress(orderId);
     await prisma.service_order.update({
       where: { id: orderId },

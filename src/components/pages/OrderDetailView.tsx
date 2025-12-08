@@ -22,13 +22,14 @@ import {
 } from "lucide-react";
 import "@/styles/users.css";
 import "@/styles/orders.css";
+import "@/styles/transaction.css";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 interface OrderDetailViewProps {
   dataServiceOrder?: Order | null;
-  session?: number;
+  session?: any;
 }
 
 export function OrderDetailView({
@@ -54,10 +55,59 @@ export function OrderDetailView({
   const [editingTask, setEditingTask] = useState<any | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<any | null>(null);
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [itemDescription, setItemDescription] = useState("");
+  const [itemCost, setItemCost] = useState<number>(0);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<string>("CARD");
+  const [cardDetails, setCardDetails] = useState({
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+  });
+  const [invoiceItems, setInvoiceItems] = useState<
+    Array<{ id: string; description: string; cost: number }>
+  >([]);
+  const [showPaymentProcessing, setShowPaymentProcessing] = useState(false);
+  const [loadingItems, setLoadingItems] = useState(false);
+
+  // Helper to convert Decimal/string to number
+  const toNumber = (val: any): number => {
+    if (val === null || val === undefined) return 0;
+    return parseFloat(val.toString());
+  };
 
   function resetForm() {
     setEditedOrder({});
   }
+
+  // Fetch invoice items from API on component mount
+  useEffect(() => {
+    if (!serviceOrder?.id) return;
+
+    const fetchItems = async () => {
+      setLoadingItems(true);
+      try {
+        const res = await fetch(`/api/orders/${serviceOrder.id}/items`);
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        const items = await res.json();
+        setInvoiceItems(
+          items.map((item: any) => ({
+            id: item.id,
+            description: item.name,
+            cost: parseFloat(item.cost.toString()),
+          }))
+        );
+      } catch (err) {
+        console.warn("Failed to fetch invoice items:", err);
+        setInvoiceItems([]);
+      } finally {
+        setLoadingItems(false);
+      }
+    };
+
+    fetchItems();
+  }, [serviceOrder?.id]);
 
   function openAddTask() {
     setTaskTitle("");
@@ -65,7 +115,6 @@ export function OrderDetailView({
     setTaskMechanicId(null);
     setTaskPriority("LOW");
     setTaskStatus("NEW");
-    // fetch mechanics minimal
     fetch("/api/mechanics?minimal=true")
       .then((r) => r.json())
       .then((data) => setMechanics(data || []))
@@ -86,7 +135,6 @@ export function OrderDetailView({
         status: taskStatus,
       };
 
-      // Try to persist to API first; fall back to local mock on failure
       let created: any = null;
       try {
         const res = await fetch(`/api/orders/${serviceOrder.id}/tasks`, {
@@ -133,12 +181,10 @@ export function OrderDetailView({
     setTaskMechanicId(task.mechanic_id ?? task.mechanicId ?? null);
     setTaskStatus(task.status || "NEW");
     setTaskPriority(task.priority || "LOW");
-    // fetch mechanics if needed
     fetch("/api/mechanics?minimal=true")
       .then((r) => r.json())
       .then((data) => {
         setMechanics(data || []);
-        // if task doesn't include mechanic id, try to match by name so select shows assigned mechanic
         if (!task.mechanic_id && task.mechanicFirstName) {
           const found = (data || []).find(
             (m: any) =>
@@ -167,7 +213,6 @@ export function OrderDetailView({
         status: taskStatus,
       };
 
-      // Try to update via API; fall back to local update on failure
       let updated: any = null;
       try {
         const res = await fetch(
@@ -185,7 +230,6 @@ export function OrderDetailView({
           "Task update API failed, falling back to local update:",
           apiErr
         );
-        // Apply local update
         updated = {
           ...editingTask,
           title: taskTitle,
@@ -202,8 +246,6 @@ export function OrderDetailView({
             editingTask.mechanicLastName,
         };
       }
-
-      // Update local state with either server response or local object
       setServiceOrder((prev) => {
         if (!prev) return prev;
         const updatedTasks = (prev.task || []).map((t: any) =>
@@ -231,7 +273,6 @@ export function OrderDetailView({
     if (!serviceOrder || !taskToDelete) return;
     setIsSubmitting(true);
     try {
-      // Try to delete on server first; fall back to local removal
       try {
         const res = await fetch(
           `/api/orders/${serviceOrder.id}/tasks/${taskToDelete.id}`,
@@ -244,7 +285,6 @@ export function OrderDetailView({
         console.warn("Task delete API failed, removing locally:", apiErr);
       }
 
-      // Remove locally
       setServiceOrder((prev) => {
         if (!prev) return prev;
         const updated = (prev.task || []).filter(
@@ -268,7 +308,6 @@ export function OrderDetailView({
     setEditedOrder({
       issue: serviceOrder.issue,
       description: serviceOrder.description,
-      // Convert ISO datetime to YYYY-MM-DD for date input compatibility
       endDate: serviceOrder.endDate
         ? String(serviceOrder.endDate).split("T")[0]
         : "",
@@ -284,7 +323,6 @@ export function OrderDetailView({
     setIsSubmitting(true);
 
     try {
-      // Send PUT to API to persist changes
       const payload = {
         issue: editedOrder.issue,
         description: editedOrder.description,
@@ -312,7 +350,6 @@ export function OrderDetailView({
     }
   }
 
-  // Add-task functionality removed per request
   const handleBack = () => {
     const segments = window.location.pathname.split("/").filter(Boolean);
     const roleSegment = segments[0] || "client";
@@ -354,11 +391,9 @@ export function OrderDetailView({
     setLineHeights(heights);
   }, [serviceOrder]);
 
-  // Compute order status dynamically from tasks
   useEffect(() => {
     if (!serviceOrder) return;
     const tasks: any[] = serviceOrder.task || [];
-    // Do not override terminal statuses
     if (
       serviceOrder.status === "COMPLETED" ||
       serviceOrder.status === "CANCELLED"
@@ -381,11 +416,9 @@ export function OrderDetailView({
     }
 
     if (newStatus !== serviceOrder.status) {
-      // update locally
       setServiceOrder((prev) =>
         prev ? { ...prev, status: newStatus as any } : prev
       );
-      // try persist to server (best-effort)
       (async () => {
         try {
           const res = await fetch(`/api/orders/${serviceOrder.id}`, {
@@ -410,7 +443,6 @@ export function OrderDetailView({
     if (!serviceOrder) return;
     setIsSubmitting(true);
     try {
-      // optimistically update
       setServiceOrder((prev) => (prev ? { ...prev, status: newStatus } : prev));
 
       const res = await fetch(`/api/orders/${serviceOrder.id}`, {
@@ -422,7 +454,6 @@ export function OrderDetailView({
       const updated: Order = await res.json();
       setServiceOrder(updated);
       setShowStatusDialog(false);
-      // when terminal, close other modals
       if (isTerminalStatus(newStatus)) {
         setShowAddTask(false);
         setShowEditOrder(false);
@@ -431,6 +462,118 @@ export function OrderDetailView({
     } catch (err) {
       console.error(err);
       alert("Failed to change order status");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleAddItem(e: FormEvent) {
+    e.preventDefault();
+    if (!serviceOrder || itemCost <= 0 || !itemDescription.trim()) return;
+    setIsSubmitting(true);
+
+    try {
+      console.log("Sending request to add item:", {
+        orderId: serviceOrder.id,
+        name: itemDescription,
+        type: "service",
+        cost: itemCost,
+      });
+
+      const res = await fetch(`/api/orders/${serviceOrder.id}/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: itemDescription,
+          type: "service",
+          cost: itemCost,
+        }),
+      });
+
+      console.log("Response status:", res.status);
+
+      // First check if response is OK
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("API Error:", errorText);
+
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.error || `API error: ${res.status}`);
+        } catch {
+          throw new Error(`Failed to add item: ${res.status} ${errorText}`);
+        }
+      }
+
+      // Parse the successful response
+      const response = await res.json();
+      console.log("API Success Response:", response);
+
+      // Now backend returns only { item }, NOT { item, order }
+      if (!response.item) {
+        throw new Error("Invalid response structure from API");
+      }
+
+      // Update local state with the new item
+      const newItem = {
+        id: response.item.id.toString(),
+        description: response.item.name,
+        cost: parseFloat(response.item.cost.toString()),
+      };
+
+      // Update invoice items - this is the only state we need to update
+      setInvoiceItems((prev) => [...prev, newItem]);
+
+      // DO NOT update serviceOrder since total_cost is not changing
+      // setServiceOrder(response.order); // Remove this line
+
+      // Reset form
+      setShowAddItem(false);
+      setItemDescription("");
+      setItemCost(0);
+
+      console.log("Item added successfully:", newItem);
+      console.log("Service order total remains:", serviceOrder.total_cost);
+    } catch (err: any) {
+      console.error("Error in handleAddItem:", err);
+      alert(`Failed to add item: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+  async function handleProcessPayment(e: FormEvent) {
+    e.preventDefault();
+    if (!serviceOrder) return;
+    setShowPaymentProcessing(true);
+    setIsSubmitting(true);
+    try {
+      // Simulate payment gateway processing
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const paymentData = {
+        paymentStatus: "PAID",
+        paymentMethod: paymentMethod,
+        paidAt: new Date().toISOString(),
+      };
+
+      const res = await fetch(`/api/orders/${serviceOrder.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData),
+      });
+      if (!res.ok) throw new Error("Payment failed");
+      const updated: Order = await res.json();
+      setServiceOrder(updated);
+      setShowPayment(false);
+      setShowPaymentProcessing(false);
+      setCardDetails({ cardNumber: "", expiryDate: "", cvv: "" });
+      setPaymentMethod("CARD");
+      setInvoiceItems([]);
+      alert(`Payment successful via ${paymentMethod}!`);
+    } catch (err) {
+      console.error(err);
+      setShowPaymentProcessing(false);
+      alert("Payment failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -616,7 +759,7 @@ export function OrderDetailView({
             </div>
           </div>
           <Card className="customers-list">
-            {serviceOrder?.task.map((task, index) => {
+            {(serviceOrder?.task || []).map((task, index) => {
               const statusClass =
                 statusMap[task.status as StatusServiceOrder] ||
                 "grafic-unknown";
@@ -631,7 +774,7 @@ export function OrderDetailView({
                 >
                   <div className="grafic">
                     <div className={`grafic_taks ${statusClass}`}></div>
-                    {index !== serviceOrder.task.length - 1 && (
+                    {index !== (serviceOrder?.task?.length || 0) - 1 && (
                       <div
                         className="grafic_line"
                         style={{
@@ -727,8 +870,555 @@ export function OrderDetailView({
         </div>
       </Card>
       <Card className="customers-list-card">
-        <div className="customers-list-inner"></div>
+        <div className="customers-list-inner">
+          <div className="customers-header" style={{ marginLeft: "5px" }}>
+            <span>Payment & Transaction Details</span>
+            {session?.user?.role === "ADMIN" && (
+              <div className="transaction-details-header">
+                <div className="transaction-actions">
+                  <Button className="edit-button_trans">
+                    Generate Invoice
+                  </Button>
+                  <Button
+                    onClick={() => setShowAddItem(true)}
+                    className="edit-button_trans"
+                  >
+                    <Plus className="icon-xxx" />
+                    <span>Add Item</span>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {session?.user?.role !== "ADMIN" && (
+            <div style={{ paddingTop: "15px" }}>
+              <div className="transaction-table-wrapper">
+                <table className="transaction-table">
+                  <tbody>
+                    <tr>
+                      <td>Service Order Total</td>
+                      <td className="transaction-amount">
+                        ${toNumber(serviceOrder?.total_cost).toFixed(2)}
+                      </td>
+                      <td>-</td>
+                    </tr>
+
+                    {invoiceItems.length > 0 ? (
+                      invoiceItems.map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.description}</td>
+                          <td className="transaction-amount">
+                            ${Number(item.cost || 0).toFixed(2)}
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="transaction-delete-btn"
+                              onClick={async () => {
+                                if (!serviceOrder) return;
+                                try {
+                                  console.log("Deleting item:", item.id);
+
+                                  const res = await fetch(
+                                    `/api/orders/${serviceOrder.id}/items/${item.id}`,
+                                    { method: "DELETE" }
+                                  );
+
+                                  if (!res.ok) {
+                                    const errorText = await res.text();
+                                    console.error(
+                                      "Delete API Error:",
+                                      errorText
+                                    );
+                                    throw new Error(
+                                      `API returned ${res.status}`
+                                    );
+                                  }
+
+                                  const response = await res.json();
+                                  console.log("Delete response:", response);
+
+                                  // Just remove item from local state, don't update serviceOrder
+                                  setInvoiceItems((prev) =>
+                                    prev.filter((i) => i.id !== item.id)
+                                  );
+
+                                  console.log("Item deleted successfully");
+                                } catch (err) {
+                                  console.error("Delete error:", err);
+                                  alert("Failed to delete item");
+                                }
+                              }}
+                            >
+                              <Trash className="icon-xxx" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="transaction-table-empty">
+                          No additional items added
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Total */}
+              <div className="transaction-total">
+                <span>Total</span>
+                <span>
+                  $
+                  {(
+                    Number(serviceOrder?.total_cost || 0) +
+                    invoiceItems.reduce(
+                      (sum, item) => sum + Number(item.cost || 0),
+                      0
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {session?.user?.role === "ADMIN" && (
+            <div style={{ paddingTop: "15px" }}>
+              <div className="transaction-items-list">
+                <div className="transaction-item-row">
+                  <span className="transaction-item-name">
+                    Service Order Total
+                  </span>
+                  <div className="transaction-item-details">
+                    <span className="transaction-item-amount">
+                      ${toNumber(serviceOrder?.total_cost).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {invoiceItems.length > 0
+                  ? invoiceItems.map((item) => (
+                      <div key={item.id} className="transaction-item-row">
+                        <span className="transaction-item-name">
+                          {item.description}
+                        </span>
+                        <div className="transaction-item-details">
+                          <span className="transaction-item-amount">
+                            ${item.cost.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  : null}
+              </div>
+
+              <div className="transaction-total">
+                <span>Total</span>
+                <span>
+                  $
+                  {(
+                    (serviceOrder?.total_cost || 0) +
+                    invoiceItems.reduce((sum, item) => sum + item.cost, 0)
+                  ).toFixed(2)}
+                </span>
+              </div>
+
+              <Button
+                onClick={() => setShowPayment(true)}
+                className="transaction-pay-now-btn"
+              >
+                Pay Now
+              </Button>
+            </div>
+          )}
+        </div>
       </Card>
+
+      <Dialog
+        open={showAddItem}
+        onOpenChange={(open) => {
+          setShowAddItem(open);
+        }}
+      >
+        <DialogContent className="dialog-content">
+          <DialogHeader>
+            <DialogTitle className="dialog-title">Add Item</DialogTitle>
+          </DialogHeader>
+
+          <form
+            className="dialog-body dialog-body--form"
+            onSubmit={handleAddItem}
+          >
+            <div className="dialog-form-grid">
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Item Description *</label>
+                <Input
+                  className="dialog-input"
+                  value={itemDescription}
+                  onChange={(e) => setItemDescription(e.target.value)}
+                  placeholder="e.g., Labor, Part replacement"
+                  required
+                />
+              </div>
+
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Item Cost *</label>
+                <Input
+                  className="dialog-input"
+                  type="number"
+                  value={itemCost}
+                  onChange={(e) => setItemCost(Number(e.target.value))}
+                  placeholder="0.00"
+                  step="0.01"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="dialog-actions">
+              <Button
+                type="button"
+                onClick={() => setShowAddItem(false)}
+                className="dialog-btn dialog-btn--primary"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="dialog-btn dialog-btn--secondary"
+              >
+                Add Item
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showPayment}
+        onOpenChange={(open) => {
+          setShowPayment(open);
+        }}
+      >
+        <DialogContent
+          className="dialog-content"
+          style={{ maxWidth: "500px", maxHeight: "90vh", overflowY: "auto" }}
+        >
+          <DialogHeader>
+            <DialogTitle className="dialog-title">Complete Payment</DialogTitle>
+          </DialogHeader>
+
+          <form
+            className="dialog-body dialog-body--form"
+            onSubmit={handleProcessPayment}
+          >
+            {/* Order Summary */}
+            <div
+              style={{
+                backgroundColor: "#f5f5f5",
+                padding: "12px",
+                borderRadius: "8px",
+                marginBottom: "20px",
+              }}
+            >
+              <h4 style={{ marginTop: 0, marginBottom: "8px" }}>
+                Order Summary
+              </h4>
+              <div
+                style={{
+                  fontSize: "14px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "8px",
+                }}
+              >
+                <span>Subtotal:</span>
+                <span>${toNumber(serviceOrder?.total_cost).toFixed(2)}</span>
+              </div>
+              <div
+                style={{
+                  fontSize: "14px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "8px",
+                  paddingBottom: "8px",
+                  borderBottom: "1px solid #ddd",
+                }}
+              >
+                <span>Tax (0%):</span>
+                <span>$0.00</span>
+              </div>
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span>Total Due:</span>
+                <span style={{ color: "#1976d2" }}>
+                  ${toNumber(serviceOrder?.total_cost).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {/* Payment Method Selection */}
+            <div className="dialog-form-grid">
+              <label className="dialog-field-label">
+                Select Payment Method
+              </label>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gap: "10px",
+                  marginBottom: "20px",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("CARD")}
+                  style={{
+                    padding: "12px",
+                    border: `2px solid ${
+                      paymentMethod === "CARD" ? "#1976d2" : "#ddd"
+                    }`,
+                    borderRadius: "8px",
+                    backgroundColor:
+                      paymentMethod === "CARD" ? "#f0f8ff" : "#fff",
+                    cursor: "pointer",
+                    fontWeight: paymentMethod === "CARD" ? "bold" : "normal",
+                  }}
+                >
+                  💳 Card
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("APPLE_PAY")}
+                  style={{
+                    padding: "12px",
+                    border: `2px solid ${
+                      paymentMethod === "APPLE_PAY" ? "#1976d2" : "#ddd"
+                    }`,
+                    borderRadius: "8px",
+                    backgroundColor:
+                      paymentMethod === "APPLE_PAY" ? "#f0f8ff" : "#fff",
+                    cursor: "pointer",
+                    fontWeight:
+                      paymentMethod === "APPLE_PAY" ? "bold" : "normal",
+                  }}
+                >
+                  🍎 Apple Pay
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("BANK_TRANSFER")}
+                  style={{
+                    padding: "12px",
+                    border: `2px solid ${
+                      paymentMethod === "BANK_TRANSFER" ? "#1976d2" : "#ddd"
+                    }`,
+                    borderRadius: "8px",
+                    backgroundColor:
+                      paymentMethod === "BANK_TRANSFER" ? "#f0f8ff" : "#fff",
+                    cursor: "pointer",
+                    fontWeight:
+                      paymentMethod === "BANK_TRANSFER" ? "bold" : "normal",
+                  }}
+                >
+                  🏦 Bank Transfer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("GOOGLE_PAY")}
+                  style={{
+                    padding: "12px",
+                    border: `2px solid ${
+                      paymentMethod === "GOOGLE_PAY" ? "#1976d2" : "#ddd"
+                    }`,
+                    borderRadius: "8px",
+                    backgroundColor:
+                      paymentMethod === "GOOGLE_PAY" ? "#f0f8ff" : "#fff",
+                    cursor: "pointer",
+                    fontWeight:
+                      paymentMethod === "GOOGLE_PAY" ? "bold" : "normal",
+                  }}
+                >
+                  🔵 Google Pay
+                </button>
+              </div>
+
+              {/* Card Payment Form */}
+              {paymentMethod === "CARD" && (
+                <>
+                  <div className="dialog-form-field dialog-field--full">
+                    <label className="dialog-field-label">
+                      Cardholder Name *
+                    </label>
+                    <Input
+                      className="dialog-input"
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+
+                  <div className="dialog-form-field dialog-field--full">
+                    <label className="dialog-field-label">Card Number *</label>
+                    <Input
+                      className="dialog-input"
+                      value={cardDetails.cardNumber}
+                      onChange={(e) =>
+                        setCardDetails({
+                          ...cardDetails,
+                          cardNumber: e.target.value,
+                        })
+                      }
+                      placeholder="1234 5678 9012 3456"
+                      maxLength={19}
+                      required
+                    />
+                  </div>
+
+                  <div className="dialog-form-field">
+                    <label className="dialog-field-label">Expiry Date *</label>
+                    <Input
+                      className="dialog-input"
+                      value={cardDetails.expiryDate}
+                      onChange={(e) =>
+                        setCardDetails({
+                          ...cardDetails,
+                          expiryDate: e.target.value,
+                        })
+                      }
+                      placeholder="MM/YY"
+                      maxLength={5}
+                      required
+                    />
+                  </div>
+
+                  <div className="dialog-form-field">
+                    <label className="dialog-field-label">CVV *</label>
+                    <Input
+                      className="dialog-input"
+                      value={cardDetails.cvv}
+                      onChange={(e) =>
+                        setCardDetails({ ...cardDetails, cvv: e.target.value })
+                      }
+                      placeholder="123"
+                      maxLength={4}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Bank Transfer Form */}
+              {paymentMethod === "BANK_TRANSFER" && (
+                <>
+                  <div
+                    style={{
+                      backgroundColor: "#fff3cd",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    <p style={{ marginTop: 0, marginBottom: "8px" }}>
+                      <strong>Bank Transfer Details:</strong>
+                    </p>
+                    <p style={{ marginBottom: "4px", fontSize: "14px" }}>
+                      Account: 1234567890
+                    </p>
+                    <p style={{ marginBottom: "4px", fontSize: "14px" }}>
+                      Bank: Standard Bank
+                    </p>
+                    <p style={{ marginBottom: "0px", fontSize: "14px" }}>
+                      Reference: ORD-{serviceOrder?.id}
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "12px", color: "#666" }}>
+                    Please transfer the amount and confirm below once done.
+                  </p>
+                </>
+              )}
+
+              {/* Apple/Google Pay Message */}
+              {(paymentMethod === "APPLE_PAY" ||
+                paymentMethod === "GOOGLE_PAY") && (
+                <div
+                  style={{
+                    backgroundColor: "#e8f5e9",
+                    padding: "12px",
+                    borderRadius: "8px",
+                    marginBottom: "15px",
+                  }}
+                >
+                  <p style={{ marginTop: 0, marginBottom: "8px" }}>
+                    <strong>
+                      Ready for{" "}
+                      {paymentMethod === "APPLE_PAY"
+                        ? "Apple Pay"
+                        : "Google Pay"}
+                    </strong>
+                  </p>
+                  <p style={{ marginBottom: "0px", fontSize: "14px" }}>
+                    Click 'Process Payment' to complete payment via{" "}
+                    {paymentMethod === "APPLE_PAY" ? "Apple Pay" : "Google Pay"}
+                    .
+                  </p>
+                </div>
+              )}
+            </div>
+            {showPaymentProcessing && (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "20px",
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "8px",
+                  marginBottom: "20px",
+                }}
+              >
+                <p style={{ marginTop: 0 }}>Processing payment...</p>
+                <div
+                  style={{
+                    display: "inline-block",
+                    width: "30px",
+                    height: "30px",
+                    border: "3px solid #f3f3f3",
+                    borderTop: "3px solid #1976d2",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                  }}
+                />
+                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+              </div>
+            )}
+
+            <div className="dialog-actions">
+              <Button
+                type="button"
+                onClick={() => setShowPayment(false)}
+                className="dialog-btn--primary"
+                disabled={showPaymentProcessing}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="dialog-btn--secondary"
+                disabled={showPaymentProcessing}
+              >
+                {showPaymentProcessing ? "Processing..." : "Process Payment"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       <Dialog
         open={showAddTask}
         onOpenChange={(open) => {
@@ -831,7 +1521,6 @@ export function OrderDetailView({
           </form>
         </DialogContent>
       </Dialog>
-      {/* Edit Task Dialog (frontend-only) */}
       <Dialog
         open={showEditTask}
         onOpenChange={(open) => {
@@ -938,7 +1627,6 @@ export function OrderDetailView({
         </DialogContent>
       </Dialog>
 
-      {/* Delete confirmation (frontend-only) */}
       <Dialog
         open={showDeleteConfirm}
         onOpenChange={(open) => {
@@ -1111,7 +1799,6 @@ export function OrderDetailView({
           </form>
         </DialogContent>
       </Dialog>
-      {/* Status change confirmation dialog */}
       <Dialog
         open={showStatusDialog}
         onOpenChange={(open) => {

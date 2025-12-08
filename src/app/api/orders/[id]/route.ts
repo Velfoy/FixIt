@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { StatusServiceOrder } from "@/types/serviceorders";
 
-// Helper to map service_order rows to API shape
 function mapOrder(o: any) {
   return {
     id: o.id,

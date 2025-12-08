@@ -389,7 +389,6 @@ export function OrdersView({
             onSubmit={handleCreateOrder}
           >
             <div className="dialog-form-grid">
-              {/* Customer Selection */}
               <div className="dialog-form-field dialog-field--full">
                 <label className="dialog-field-label">Customer *</label>
                 <select
@@ -398,7 +397,7 @@ export function OrdersView({
                   onChange={(e) => {
                     const customerId = Number(e.target.value);
                     setSelectedCustomerId(customerId);
-                    setSelectedVehicleId(null); // Reset vehicle when customer changes
+                    setSelectedVehicleId(null);
                     setNewOrder((prev) => ({
                       ...prev,
                       carBrand: "",
@@ -418,7 +417,6 @@ export function OrdersView({
                 </select>
               </div>
 
-              {/* Vehicle Selection (only shown when customer is selected) */}
               {selectedCustomerId && (
                 <div className="dialog-form-field dialog-field--full">
                   <label className="dialog-field-label">Vehicle *</label>
@@ -441,7 +439,6 @@ export function OrdersView({
                 </div>
               )}
 
-              {/* Mechanic Selection */}
               <div className="dialog-form-field dialog-field--full">
                 <label className="dialog-field-label">Mechanic *</label>
                 <select
@@ -461,7 +458,6 @@ export function OrdersView({
                 </select>
               </div>
 
-              {/* Issue Description */}
               <div className="dialog-form-field dialog-field--full">
                 <label className="dialog-field-label">
                   Issue Description *
@@ -477,7 +473,6 @@ export function OrdersView({
                 />
               </div>
 
-              {/* Detailed Description */}
               <div className="dialog-form-field dialog-field--full">
                 <label className="dialog-field-label">
                   Detailed Description
@@ -495,7 +490,6 @@ export function OrdersView({
                 />
               </div>
 
-              {/* Estimated Cost */}
               <div className="dialog-form-field">
                 <label className="dialog-field-label">
                   Estimated Cost ($) *
@@ -517,7 +511,6 @@ export function OrdersView({
                 />
               </div>
 
-              {/* Priority Selection */}
               <div className="dialog-form-field">
                 <label className="dialog-field-label">Priority *</label>
                 <select
@@ -543,7 +536,6 @@ export function OrdersView({
                 </select>
               </div>
 
-              {/* Start Date */}
               <div className="dialog-form-field">
                 <label className="dialog-field-label">Start Date *</label>
                 <Input
@@ -560,7 +552,6 @@ export function OrdersView({
                 />
               </div>
 
-              {/* End Date */}
               <div className="dialog-form-field">
                 <label className="dialog-field-label">
                   Estimated Completion Date *
