@@ -1,0 +1,98 @@
+import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { StatusServiceOrder } from "@/types/serviceorders";
+
+// Helper to map service_order rows to API shape
+function mapOrder(o: any) {
+  return {
+    id: o.id,
+    orderNumber: o.order_number,
+    carBrand: o.vehicle?.brand || "",
+    carModel: o.vehicle?.model || "",
+    carYear: o.vehicle?.year?.toString() || "",
+    carLicensePlate: o.vehicle?.license_plate || "",
+    issue: o.issue || "",
+    description: o.description || "",
+    status: o.status as StatusServiceOrder,
+    endDate: o.end_date?.toISOString() || "",
+    total_cost: Number(o.total_cost) || 0,
+    progress: Number(o.progress) || 0,
+    priority: o.priority || "NORMAL",
+    mechanicFirstName: o.employees?.users?.first_name || "",
+    mechanicLastName: o.employees?.users?.last_name || "",
+    mechanicEmail: o.employees?.users?.email || "",
+    mechanicPhone: o.employees?.users?.phone || "",
+    task: (o.service_task || []).map((t: any) => ({
+      id: t.id,
+      mechanicFirstName: t.employees?.users?.first_name || "",
+      mechanicLastName: t.employees?.users?.last_name || "",
+      title: t.title,
+      description: t.description || "",
+      status: t.status as StatusServiceOrder,
+      created_at: t.created_at.toISOString(),
+      updated_at: t.updated_at.toISOString(),
+      priority: t.priority as any,
+    })),
+  };
+}
+
+export async function GET(req: NextRequest, context: any) {
+  try {
+    const params = await context.params;
+    const id = Number(params?.id);
+    if (!Number.isFinite(id)) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+
+    const o = await prisma.service_order.findUnique({
+      where: { id },
+      include: {
+        vehicle: true,
+        employees: { include: { users: true } },
+        service_task: { include: { employees: { include: { users: true } } } },
+      },
+    });
+
+    if (!o) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    return NextResponse.json(mapOrder(o), { status: 200 });
+  } catch (error) {
+    console.error("GET /api/orders/[id] error:", error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest, context: any) {
+  try {
+    const params = await context.params;
+    const id = Number(params?.id);
+    if (!Number.isFinite(id)) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+
+    const body = await req.json();
+    const { issue, description, endDate, total_cost, priority, status } = body;
+
+    const updated = await prisma.service_order.update({
+      where: { id },
+      data: {
+        issue: issue ?? undefined,
+        description: description ?? undefined,
+        end_date: endDate ? new Date(endDate) : undefined,
+        total_cost: total_cost !== undefined ? Number(total_cost) : undefined,
+        priority: priority ?? undefined,
+        status: status ?? undefined,
+      },
+      include: {
+        vehicle: true,
+        employees: { include: { users: true } },
+        service_task: { include: { employees: { include: { users: true } } } },
+      },
+    });
+
+    return NextResponse.json(mapOrder(updated), { status: 200 });
+  } catch (error) {
+    console.error("PUT /api/orders/[id] error:", error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
+  }
+}

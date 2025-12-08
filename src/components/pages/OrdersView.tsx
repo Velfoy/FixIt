@@ -103,7 +103,7 @@ export function OrdersView({
     endDate: "",
     total_cost: 0,
     progress: 0,
-    priority: "MEDIUM",
+    priority: "NORMAL",
   });
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(
@@ -184,7 +184,7 @@ export function OrdersView({
       endDate: "",
       total_cost: 0,
       progress: 0,
-      priority: "MEDIUM",
+      priority: "NORMAL",
     });
     setSelectedCustomerId(null);
     setSelectedVehicleId(null);
@@ -528,7 +528,7 @@ export function OrdersView({
                       ...prev,
                       priority: e.target.value as
                         | "LOW"
-                        | "MEDIUM"
+                        | "NORMAL"
                         | "HIGH"
                         | "URGENT",
                     }))

@@ -42,9 +42,77 @@ export function OrderDetailView({
   const [showEditOrder, setShowEditOrder] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editedOrder, setEditedOrder] = useState<Partial<Order>>({});
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [taskMechanicId, setTaskMechanicId] = useState<number | null>(null);
+  const [taskPriority, setTaskPriority] = useState<string>("LOW");
+  const [mechanics, setMechanics] = useState<any[]>([]);
 
   function resetForm() {
     setEditedOrder({});
+  }
+
+  function openAddTask() {
+    setTaskTitle("");
+    setTaskDescription("");
+    setTaskMechanicId(null);
+    setTaskPriority("LOW");
+    // fetch mechanics minimal
+    fetch("/api/mechanics?minimal=true")
+      .then((r) => r.json())
+      .then((data) => setMechanics(data || []))
+      .catch((e) => console.error(e));
+    setShowAddTask(true);
+  }
+
+  async function handleCreateTask(e: FormEvent) {
+    e.preventDefault();
+    if (!serviceOrder) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        title: taskTitle,
+        description: taskDescription,
+        mechanicId: taskMechanicId,
+        priority: taskPriority,
+        status: "NEW",
+      };
+
+      // API call commented out per request — local mock append instead
+      /*
+      const res = await fetch(`/api/orders/${serviceOrder.id}/tasks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Failed to create task");
+      const created = await res.json();
+      */
+
+      const mechanic = mechanics.find((m) => m.id === taskMechanicId) || {};
+      const created = {
+        id: Date.now(),
+        mechanicFirstName: mechanic.first_name || "",
+        mechanicLastName: mechanic.last_name || "",
+        title: taskTitle,
+        description: taskDescription,
+        status: "NEW",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        priority: taskPriority,
+      } as any;
+
+      setServiceOrder((prev) =>
+        prev ? { ...prev, task: [...(prev.task || []), created] } : prev
+      );
+      setShowAddTask(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create task");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   async function handleEdit() {
@@ -52,7 +120,10 @@ export function OrderDetailView({
     setEditedOrder({
       issue: serviceOrder.issue,
       description: serviceOrder.description,
-      endDate: serviceOrder.endDate,
+      // Convert ISO datetime to YYYY-MM-DD for date input compatibility
+      endDate: serviceOrder.endDate
+        ? String(serviceOrder.endDate).split("T")[0]
+        : "",
       total_cost: serviceOrder.total_cost,
       priority: serviceOrder.priority,
     });
@@ -65,16 +136,23 @@ export function OrderDetailView({
     setIsSubmitting(true);
 
     try {
-      // Currently no PUT endpoint exists for orders in the API, so update locally.
-      const updated: Order = {
-        ...serviceOrder,
-        issue: editedOrder.issue ?? serviceOrder.issue,
-        description: editedOrder.description ?? serviceOrder.description,
-        endDate: editedOrder.endDate ?? serviceOrder.endDate,
-        total_cost: Number(editedOrder.total_cost ?? serviceOrder.total_cost),
-        priority: (editedOrder.priority as string) ?? serviceOrder.priority,
+      // Send PUT to API to persist changes
+      const payload = {
+        issue: editedOrder.issue,
+        description: editedOrder.description,
+        endDate: editedOrder.endDate,
+        total_cost: editedOrder.total_cost,
+        priority: editedOrder.priority,
       };
 
+      const res = await fetch(`/api/orders/${serviceOrder.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to update order");
+      const updated: Order = await res.json();
       setServiceOrder(updated);
       setShowEditOrder(false);
       resetForm();
@@ -85,6 +163,8 @@ export function OrderDetailView({
       setIsSubmitting(false);
     }
   }
+
+  // Add-task functionality removed per request
   const handleBack = () => {
     const segments = window.location.pathname.split("/").filter(Boolean);
     const roleSegment = segments[0] || "client";
@@ -264,7 +344,7 @@ export function OrderDetailView({
           >
             <span>Order Status Timeline / Tasks</span>
             <div className="left_order">
-              <button onClick={handleEdit} className="edit-button_order">
+              <button onClick={openAddTask} className="edit-button_order">
                 <Plus className="icon-xxx" />
                 <span>Add Task</span>
               </button>
@@ -376,6 +456,93 @@ export function OrderDetailView({
       <Card className="customers-list-card">
         <div className="customers-list-inner"></div>
       </Card>
+      <Dialog
+        open={showAddTask}
+        onOpenChange={(open) => {
+          setShowAddTask(open);
+        }}
+      >
+        <DialogContent className="dialog-content">
+          <DialogHeader>
+            <DialogTitle className="dialog-title">Add Task</DialogTitle>
+          </DialogHeader>
+
+          <form
+            className="dialog-body dialog-body--form"
+            onSubmit={handleCreateTask}
+          >
+            <div className="dialog-form-grid">
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Title *</label>
+                <Input
+                  className="dialog-input"
+                  value={taskTitle}
+                  onChange={(e) => setTaskTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="dialog-form-field dialog-field--full">
+                <label className="dialog-field-label">Description</label>
+                <textarea
+                  className="dialog-input"
+                  style={{ minHeight: "100px" }}
+                  value={taskDescription}
+                  onChange={(e) => setTaskDescription(e.target.value)}
+                />
+              </div>
+
+              <div className="dialog-form-field">
+                <label className="dialog-field-label">Mechanic *</label>
+                <select
+                  className="dialog-input"
+                  value={taskMechanicId ?? ""}
+                  onChange={(e) => setTaskMechanicId(Number(e.target.value))}
+                  required
+                >
+                  <option value="">-- Select mechanic --</option>
+                  {mechanics.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.first_name} {m.last_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="dialog-form-field">
+                <label className="dialog-field-label">Priority</label>
+                <select
+                  className="dialog-input"
+                  value={taskPriority}
+                  onChange={(e) => setTaskPriority(e.target.value)}
+                >
+                  <option value="LOW">Low</option>
+                  <option value="NORMAL">Normal</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="dialog-actions">
+              <Button
+                type="submit"
+                className="dialog-btn dialog-btn--primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Adding..." : "Add Task"}
+              </Button>
+              <Button
+                type="button"
+                className="dialog-btn dialog-btn--secondary"
+                onClick={() => setShowAddTask(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={showEditOrder}
         onOpenChange={(open) => {
