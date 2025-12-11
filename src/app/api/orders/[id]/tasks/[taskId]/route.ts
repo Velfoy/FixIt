@@ -111,7 +111,22 @@ export async function PUT(req: NextRequest, context: any) {
       data: { progress: newProgress },
     });
 
-    return NextResponse.json(updated);
+    // Return task with mechanic identifiers so UI doesn't filter it out
+    return NextResponse.json({
+      id: updated.id,
+      mechanic_id: updated.mechanic_id ?? null,
+      mechanicId: updated.mechanic_id ?? null,
+      mechanicUserId:
+        updated.employees?.user_id ?? updated.employees?.users?.id ?? null,
+      mechanicFirstName: updated.employees?.users?.first_name || "",
+      mechanicLastName: updated.employees?.users?.last_name || "",
+      title: updated.title,
+      description: updated.description || "",
+      status: updated.status,
+      created_at: updated.created_at.toISOString(),
+      updated_at: updated.updated_at.toISOString(),
+      priority: updated.priority,
+    });
   } catch (e) {
     console.error(e);
     return new NextResponse(JSON.stringify({ error: String(e) }), {

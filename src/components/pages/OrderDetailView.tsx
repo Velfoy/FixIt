@@ -327,6 +327,8 @@ export function OrderDetailView({
           "Task update API failed, falling back to local update:",
           apiErr
         );
+        const selectedMechanic =
+          mechanics.find((m) => m.id === taskMechanicId) || {};
         updated = {
           ...editingTask,
           title: taskTitle,
@@ -335,12 +337,12 @@ export function OrderDetailView({
           status: taskStatus,
           mechanic_id: taskMechanicId,
           mechanicId: taskMechanicId,
+          mechanicUserId:
+            selectedMechanic.user_id ?? editingTask.mechanicUserId,
           mechanicFirstName:
-            (mechanics.find((m) => m.id === taskMechanicId) || {}).first_name ||
-            editingTask.mechanicFirstName,
+            selectedMechanic.first_name || editingTask.mechanicFirstName,
           mechanicLastName:
-            (mechanics.find((m) => m.id === taskMechanicId) || {}).last_name ||
-            editingTask.mechanicLastName,
+            selectedMechanic.last_name || editingTask.mechanicLastName,
         };
       }
       setServiceOrder((prev) => {
