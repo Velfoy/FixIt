@@ -1053,7 +1053,11 @@ export function OrderDetailView({
           <span
             role={isTerminalStatus(serviceOrder?.status) ? undefined : "button"}
             onClick={() => {
-              if (serviceOrder && !isTerminalStatus(serviceOrder.status))
+              if (
+                serviceOrder &&
+                !isTerminalStatus(serviceOrder.status) &&
+                session?.user?.role !== "CLIENT"
+              )
                 setShowStatusDialog(true);
             }}
             className={`${
@@ -1066,7 +1070,7 @@ export function OrderDetailView({
           >
             {STATUS_MAP[serviceOrder?.status || "NEW"].label}
           </span>
-          {session?.user?.role !== "MECHANIC" && (
+          {session?.user?.role === "ADMIN" && (
             <button
               onClick={() => {
                 if (!isTerminalStatus(serviceOrder?.status)) handleEdit();
@@ -1075,6 +1079,7 @@ export function OrderDetailView({
                 isTerminalStatus(serviceOrder?.status) ? "disabled" : ""
               }`}
               disabled={isTerminalStatus(serviceOrder?.status)}
+              style={{ marginLeft: "15px" }}
             >
               <Edit className="icon-xxx" />
               <span>Edit Order</span>
@@ -1307,19 +1312,16 @@ export function OrderDetailView({
                   </div>
                   {isTerminalStatus(serviceOrder?.status) ? null : (
                     <div className="customer-actions">
-                      {(session?.user?.role === "ADMIN" ||
-                        session?.user?.role === "MECHANIC") && (
-                        <button
-                          className="icon-btn icon-btn--edit"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openTaskComments(task);
-                          }}
-                          title="View Comments"
-                        >
-                          <Mail className="icon-xxx" />
-                        </button>
-                      )}
+                      <button
+                        className="icon-btn icon-btn--edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openTaskComments(task);
+                        }}
+                        title="View Comments"
+                      >
+                        <Mail className="icon-xxx" />
+                      </button>
                       {session?.user?.role === "ADMIN" && (
                         <button
                           className="icon-btn icon-btn--edit"
@@ -1349,18 +1351,19 @@ export function OrderDetailView({
                           {STATUS_MAP[task.status || "NEW"].label}
                         </span>
                       )}
-
-                      <button
-                        className="icon-btn icon-btn--edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!isTerminalStatus(serviceOrder?.status))
-                            openDeleteConfirm(task);
-                        }}
-                        disabled={isTerminalStatus(serviceOrder?.status)}
-                      >
-                        <Trash className="icon-xxx" />
-                      </button>
+                      {session?.user?.role !== "CLIENT" && (
+                        <button
+                          className="icon-btn icon-btn--edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isTerminalStatus(serviceOrder?.status))
+                              openDeleteConfirm(task);
+                          }}
+                          disabled={isTerminalStatus(serviceOrder?.status)}
+                        >
+                          <Trash className="icon-xxx" />
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1453,7 +1456,10 @@ export function OrderDetailView({
                               part.deductFromWarehouse
                             )
                           }
-                          disabled={isTerminalStatus(serviceOrder?.status)}
+                          disabled={
+                            isTerminalStatus(serviceOrder?.status) ||
+                            session?.user?.role === "CLIENT"
+                          }
                         />
                       ),
                     },
@@ -1463,22 +1469,26 @@ export function OrderDetailView({
                       render: (part: any) =>
                         part.warehouseDeductedAt ? "✓" : "-",
                     },
-                    {
-                      key: "action",
-                      header: "Action",
-                      render: (part: any) => (
-                        <Button
-                          onClick={() => handleDeletePart(part.id)}
-                          className="edit-button_trans order-part-delete-btn"
-                          disabled={
-                            isTerminalStatus(serviceOrder?.status) ||
-                            loadingParts
-                          }
-                        >
-                          Delete
-                        </Button>
-                      ),
-                    },
+                    ...(session?.user?.role !== "CLIENT"
+                      ? [
+                          {
+                            key: "action",
+                            header: "Action",
+                            render: (part: any) => (
+                              <Button
+                                onClick={() => handleDeletePart(part.id)}
+                                className="edit-button_trans order-part-delete-btn"
+                                disabled={
+                                  isTerminalStatus(serviceOrder?.status) ||
+                                  loadingParts
+                                }
+                              >
+                                Delete
+                              </Button>
+                            ),
+                          },
+                        ]
+                      : []),
                   ]}
                   pageSize={10}
                   getRowKey={(part) => part.id}
@@ -1518,22 +1528,29 @@ export function OrderDetailView({
                     </>
                   )}
 
-                  {orderParts.some(
-                    (p) => p.deductFromWarehouse && !p.warehouseDeductedAt
-                  ) && (
-                    <Button
-                      onClick={handleDeductPartsFromWarehouse}
-                      className="transaction-pay-now-btn order-deduct-btn"
-                      disabled={
-                        isTerminalStatus(serviceOrder?.status) ||
-                        isSubmitting ||
-                        !orderParts.some(
-                          (p) => p.deductFromWarehouse && !p.warehouseDeductedAt
-                        )
-                      }
-                    >
-                      {isSubmitting ? "Processing..." : "Delete from Warehouse"}
-                    </Button>
+                  {session?.user?.role !== "CLIENT" && (
+                    <>
+                      {orderParts.some(
+                        (p) => p.deductFromWarehouse && !p.warehouseDeductedAt
+                      ) && (
+                        <Button
+                          onClick={handleDeductPartsFromWarehouse}
+                          className="transaction-pay-now-btn order-deduct-btn"
+                          disabled={
+                            isTerminalStatus(serviceOrder?.status) ||
+                            isSubmitting ||
+                            !orderParts.some(
+                              (p) =>
+                                p.deductFromWarehouse && !p.warehouseDeductedAt
+                            )
+                          }
+                        >
+                          {isSubmitting
+                            ? "Processing..."
+                            : "Delete from Warehouse"}
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>
               </>
@@ -1541,177 +1558,176 @@ export function OrderDetailView({
           </div>
         </div>
       </Card>
-      {session?.user?.role === "MECHANIC" && (
-        <Card className="customers-list-card">
-          <div className="customers-list-inner">
-            <div className="customers-header order-section-indent">
-              <span>Payment & Transaction Details</span>
-              {(session?.user?.role === "ADMIN" ||
-                session?.user?.role === "MECHANIC") && (
-                <div className="transaction-details-header">
-                  <div className="transaction-actions">
-                    {session?.user?.role === "ADMIN" && (
-                      <Button className="edit-button_trans">
-                        Generate Invoice
-                      </Button>
-                    )}
-                    <Button
-                      onClick={() => setShowAddItem(true)}
-                      className="edit-button_trans"
-                    >
-                      <Plus className="icon-xxx" />
-                      <span>Add Item</span>
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
 
+      <Card className="customers-list-card">
+        <div className="customers-list-inner">
+          <div className="customers-header order-section-indent">
+            <span>Payment & Transaction Details</span>
             {(session?.user?.role === "ADMIN" ||
               session?.user?.role === "MECHANIC") && (
-              <div className="transaction-padding">
-                <div className="transaction-table-wrapper">
-                  <table className="transaction-table">
-                    <tbody>
-                      <tr>
-                        <td>Service Order Total</td>
-                        <td className="transaction-amount">
-                          ${toNumber(serviceOrder?.total_cost).toFixed(2)}
-                        </td>
-                        <td>-</td>
-                      </tr>
-
-                      {invoiceItems.length > 0 ? (
-                        invoiceItems.map((item) => (
-                          <tr key={item.id}>
-                            <td>{item.description}</td>
-                            <td className="transaction-amount">
-                              ${Number(item.cost || 0).toFixed(2)}
-                            </td>
-                            <td>
-                              <button
-                                type="button"
-                                className="transaction-delete-btn"
-                                onClick={async () => {
-                                  if (!serviceOrder) return;
-                                  try {
-                                    console.log("Deleting item:", item.id);
-
-                                    const res = await fetch(
-                                      `/api/orders/${serviceOrder.id}/items/${item.id}`,
-                                      { method: "DELETE" }
-                                    );
-
-                                    if (!res.ok) {
-                                      const errorText = await res.text();
-                                      console.error(
-                                        "Delete API Error:",
-                                        errorText
-                                      );
-                                      throw new Error(
-                                        `API returned ${res.status}`
-                                      );
-                                    }
-
-                                    const response = await res.json();
-                                    console.log("Delete response:", response);
-
-                                    setInvoiceItems((prev) =>
-                                      prev.filter((i) => i.id !== item.id)
-                                    );
-
-                                    console.log("Item deleted successfully");
-                                  } catch (err) {
-                                    console.error("Delete error:", err);
-                                    alert("Failed to delete item");
-                                  }
-                                }}
-                              >
-                                <Trash className="icon-xxx" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={3} className="transaction-table-empty">
-                            No additional items added
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+              <div className="transaction-details-header">
+                <div className="transaction-actions">
+                  {session?.user?.role === "ADMIN" && (
+                    <Button className="edit-button_trans">
+                      Generate Invoice
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => setShowAddItem(true)}
+                    className="edit-button_trans"
+                  >
+                    <Plus className="icon-xxx" />
+                    <span>Add Item</span>
+                  </Button>
                 </div>
-
-                {/* Total */}
-                <div className="transaction-total">
-                  <span>Total</span>
-                  <span>
-                    $
-                    {(
-                      toNumber(serviceOrder?.total_cost || 0) +
-                      invoiceItems.reduce(
-                        (sum, item) => sum + Number(item.cost || 0),
-                        0
-                      )
-                    ).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {session?.user?.role === "CLIENT" && (
-              <div className="transaction-padding">
-                <div className="transaction-items-list">
-                  <div className="transaction-item-row">
-                    <span className="transaction-item-name">
-                      Service Order Total
-                    </span>
-                    <div className="transaction-item-details">
-                      <span className="transaction-item-amount">
-                        ${toNumber(serviceOrder?.total_cost).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {invoiceItems.length > 0
-                    ? invoiceItems.map((item) => (
-                        <div key={item.id} className="transaction-item-row">
-                          <span className="transaction-item-name">
-                            {item.description}
-                          </span>
-                          <div className="transaction-item-details">
-                            <span className="transaction-item-amount">
-                              ${item.cost.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      ))
-                    : null}
-                </div>
-
-                <div className="transaction-total">
-                  <span>Total</span>
-                  <span>
-                    $
-                    {(
-                      toNumber(serviceOrder?.total_cost || 0) +
-                      invoiceItems.reduce((sum, item) => sum + item.cost, 0)
-                    ).toFixed(2)}
-                  </span>
-                </div>
-
-                <Button
-                  onClick={() => setShowPayment(true)}
-                  className="transaction-pay-now-btn"
-                >
-                  Pay Now
-                </Button>
               </div>
             )}
           </div>
-        </Card>
-      )}
+
+          {(session?.user?.role === "ADMIN" ||
+            session?.user?.role === "MECHANIC") && (
+            <div className="transaction-padding">
+              <div className="transaction-table-wrapper">
+                <table className="transaction-table">
+                  <tbody>
+                    <tr>
+                      <td>Service Order Total</td>
+                      <td className="transaction-amount">
+                        ${toNumber(serviceOrder?.total_cost).toFixed(2)}
+                      </td>
+                      <td>-</td>
+                    </tr>
+
+                    {invoiceItems.length > 0 ? (
+                      invoiceItems.map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.description}</td>
+                          <td className="transaction-amount">
+                            ${Number(item.cost || 0).toFixed(2)}
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="transaction-delete-btn"
+                              onClick={async () => {
+                                if (!serviceOrder) return;
+                                try {
+                                  console.log("Deleting item:", item.id);
+
+                                  const res = await fetch(
+                                    `/api/orders/${serviceOrder.id}/items/${item.id}`,
+                                    { method: "DELETE" }
+                                  );
+
+                                  if (!res.ok) {
+                                    const errorText = await res.text();
+                                    console.error(
+                                      "Delete API Error:",
+                                      errorText
+                                    );
+                                    throw new Error(
+                                      `API returned ${res.status}`
+                                    );
+                                  }
+
+                                  const response = await res.json();
+                                  console.log("Delete response:", response);
+
+                                  setInvoiceItems((prev) =>
+                                    prev.filter((i) => i.id !== item.id)
+                                  );
+
+                                  console.log("Item deleted successfully");
+                                } catch (err) {
+                                  console.error("Delete error:", err);
+                                  alert("Failed to delete item");
+                                }
+                              }}
+                            >
+                              <Trash className="icon-xxx" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="transaction-table-empty">
+                          No additional items added
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Total */}
+              <div className="transaction-total">
+                <span>Total</span>
+                <span>
+                  $
+                  {(
+                    toNumber(serviceOrder?.total_cost || 0) +
+                    invoiceItems.reduce(
+                      (sum, item) => sum + Number(item.cost || 0),
+                      0
+                    )
+                  ).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {session?.user?.role === "CLIENT" && (
+            <div className="transaction-padding">
+              <div className="transaction-items-list">
+                <div className="transaction-item-row">
+                  <span className="transaction-item-name">
+                    Service Order Total
+                  </span>
+                  <div className="transaction-item-details">
+                    <span className="transaction-item-amount">
+                      ${toNumber(serviceOrder?.total_cost).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {invoiceItems.length > 0
+                  ? invoiceItems.map((item) => (
+                      <div key={item.id} className="transaction-item-row">
+                        <span className="transaction-item-name">
+                          {item.description}
+                        </span>
+                        <div className="transaction-item-details">
+                          <span className="transaction-item-amount">
+                            ${item.cost.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  : null}
+              </div>
+
+              <div className="transaction-total">
+                <span>Total</span>
+                <span>
+                  $
+                  {(
+                    toNumber(serviceOrder?.total_cost || 0) +
+                    invoiceItems.reduce((sum, item) => sum + item.cost, 0)
+                  ).toFixed(2)}
+                </span>
+              </div>
+
+              <Button
+                onClick={() => setShowPayment(true)}
+                className="transaction-pay-now-btn"
+              >
+                Pay Now
+              </Button>
+            </div>
+          )}
+        </div>
+      </Card>
 
       <Dialog
         open={showAddItem}
@@ -2653,7 +2669,9 @@ export function OrderDetailView({
                 <p className="order-comments-loading">Loading comments...</p>
               ) : taskComments.length === 0 ? (
                 <p className="order-comments-empty">
-                  No comments yet. Be the first to add one!
+                  {session?.user?.role !== "CLIENT"
+                    ? "No comments yet. Be the first to add one!"
+                    : "No comments available for this task."}
                 </p>
               ) : (
                 <div className="order-comments-list">

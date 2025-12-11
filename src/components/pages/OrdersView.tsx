@@ -272,10 +272,12 @@ export function OrdersView({
             Manage and track order information
           </p>
         </div>
-        <Button onClick={openAddModal} className="add-customer-btn-override">
-          <Plus className="icon-sm" />
-          <span>Create Order</span>
-        </Button>
+        {session?.user?.role !== "CLIENT" && (
+          <Button onClick={openAddModal} className="add-customer-btn-override">
+            <Plus className="icon-sm" />
+            <span>Create Order</span>
+          </Button>
+        )}
       </div>
 
       {/* Search and Filter Section */}
@@ -367,14 +369,16 @@ export function OrdersView({
                     <div className="customer-total order_chevron">
                       <p className="customer-total-orders">
                         <ChevronRight className="icon-xs"></ChevronRight>
-                        <Trash
-                          className="icon-xs delete_hover"
-                          style={{ marginLeft: "5px" }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteOrder(order.id);
-                          }}
-                        ></Trash>
+                        {session?.user?.role !== "CLIENT" && (
+                          <Trash
+                            className="icon-xs delete_hover"
+                            style={{ marginLeft: "5px" }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteOrder(order.id);
+                            }}
+                          ></Trash>
+                        )}
                       </p>
                     </div>
                   </div>
