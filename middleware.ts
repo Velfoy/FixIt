@@ -36,10 +36,8 @@ const routeAccessMatrix: Record<string, string[]> = {
     "history",
     "invoices",
     "info",
-    "success",
     "settings",
     "profile",
-    "checkout",
   ],
   warehouse: [
     "dashboard",

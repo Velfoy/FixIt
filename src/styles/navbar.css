@@ -1,0 +1,95 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.navbar-inner {
+  margin: 0 20px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar a {
+  color: black;
+  text-decoration: none;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+
+  color: black;
+  text-decoration: none;
+}
+.navbar-brand-logo {
+}
+
+.navbar-brand-text {
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.4px;
+  color: black;
+  opacity: 0.95;
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-btn {
+  background: #e5e7eb;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.navbar-btn:hover {
+  background: #ececec;
+  border-color: #e5e7eb;
+  transform: translateY(2px);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-user-label {
+  color: #4b5563;
+  font-size: 14px;
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.navbar-logout {
+  background: #ad0404;
+  border-color: #ad0404;
+  color: #ffffff;
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.navbar-logout:hover {
+  background: #b90606;
+  box-shadow: 0 8px 20px rgba(173, 4, 4, 0.35);
+}
