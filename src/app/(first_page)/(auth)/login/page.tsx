@@ -200,17 +200,6 @@ export default function AuthPage() {
             </div>
           </form>
         </div>
-
-        <div className="auth-illustration">
-          <div className="auth-illustration-content">
-            <div className="auth-illustration-icon">🔧</div>
-            <div className="auth-illustration-title">FixIt</div>
-            <div className="auth-illustration-text">
-              Manage your automotive repairs and maintenance in one place.
-              Quick, reliable, and professional service at your fingertips.
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

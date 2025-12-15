@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #0d0d0d 0%, #eeeeee 100%);
   padding: 40px 20px;
   font-family: "Trebuchet MS", sans-serif;
 }
@@ -22,7 +22,7 @@
 .auth-content {
   flex: 1;
   min-width: 300px;
-  max-width: 420px;
+  max-width: 1200px;
   width: 100%;
 }
 
@@ -33,7 +33,7 @@
 .auth-title {
   font-size: 32px;
   font-weight: 800;
-  color: #1f2937;
+  color: #ffffff;
   margin-bottom: 12px;
   letter-spacing: -0.5px;
   text-align: center;
@@ -41,7 +41,7 @@
 
 .auth-subtitle {
   font-size: 15px;
-  color: #6b7280;
+  color: #b1b1b1;
   margin-bottom: 30px;
   line-height: 1.5;
   text-align: center;
@@ -53,10 +53,10 @@
   gap: 16px;
   background: white;
   padding: 40px;
+  padding-bottom: 30px;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
-  width: 100%;
 }
 
 .auth-form-row {
@@ -120,8 +120,7 @@
 
 .auth-toggle {
   text-align: center;
-  margin-top: 20px;
-  padding-top: 20px;
+  padding-top: 10px;
   border-top: 1px solid #e5e7eb;
 }
 

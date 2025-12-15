@@ -14,7 +14,14 @@ const Navbar: React.FC = () => {
     pathname?.startsWith("/login") ||
     pathname?.startsWith("/register") ||
     pathname?.includes("auth");
-  const isHome = pathname === "/" || pathname === "/(first_page)/public"; // adjust if home is different
+
+  // Determine logo link: dashboard if logged in, home otherwise
+  const logoHref =
+    session?.user &&
+    typeof session.user.role === "string" &&
+    session.user.role.length > 0
+      ? `/${session.user.role.toLowerCase()}/dashboard`
+      : "/";
 
   const userLabel = session?.user?.name
     ? `${session.user.name}`.trim()
@@ -24,7 +31,7 @@ const Navbar: React.FC = () => {
     <header className="navbar">
       <nav className="navbar-inner">
         <div className="navbar-left">
-          <Link href="/" className="navbar-brand">
+          <Link href={logoHref} className="navbar-brand">
             <Image
               src="/images/logo_white_text.png"
               alt="FixIt"
