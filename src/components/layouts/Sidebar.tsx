@@ -114,14 +114,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role }: SidebarProps) => {
       )} */}
 
       {/* Invoices */}
-      {(safeRole === "admin" ||
+      {/* {(safeRole === "admin" ||
         safeRole === "client" ||
         safeRole === "warehouse") && (
         <a href={`/${safeRole}/invoices`} className="sidebar-btn">
           <FileText className="icon" />
           <span className="sidebar-text">Invoices</span>
         </a>
-      )}
+      )} */}
 
       {/* Info */}
       {/* <a href={`/${safeRole}/info`} className="sidebar-btn">

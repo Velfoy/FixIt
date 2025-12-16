@@ -1,0 +1,204 @@
+/* Settings Page Styles */
+:root {
+  --bg-page: #050509;
+  --bg-card: #11111b;
+  --bg-card-soft: #151521;
+  --border-subtle: #1f2933;
+
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --text-soft: #6b7280;
+
+  --accent: #ad0404;
+  --accent-soft: #7a0202;
+
+  --radius-lg: 16px;
+  --radius-md: 10px;
+
+  --shadow-soft: 0 14px 30px rgba(0, 0, 0, 0.9);
+}
+
+.settings-container {
+  margin: 0 auto;
+}
+
+.settings-header {
+  margin-bottom: 20px;
+}
+
+.settings-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-main);
+  font-family: "Trebuchet MS", sans-serif;
+  margin: 0 0 8px 0;
+}
+
+.settings-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.settings-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: "Trebuchet MS", sans-serif;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-form-group {
+  margin-bottom: 20px;
+}
+
+.settings-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.settings-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.settings-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 14px;
+  font-family: "Trebuchet MS", sans-serif;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(173, 4, 4, 0.1);
+}
+
+.settings-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-input-hint {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 6px;
+}
+
+.settings-btn {
+  padding: 10px 20px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Trebuchet MS", sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+.settings-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.settings-btn-secondary {
+  background: var(--bg-card-soft);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
+.settings-btn-secondary:hover {
+  background: var(--border-subtle);
+}
+
+.settings-alert {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.settings-alert-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.settings-alert-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.settings-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-info-row:last-child {
+  border-bottom: none;
+}
+
+.settings-info-label {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.settings-info-value {
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.settings-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 24px 0;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 16px;
+  }
+
+  .settings-title {
+    font-size: 24px;
+  }
+
+  .settings-section {
+    padding: 16px;
+  }
+}
