@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -34,7 +35,9 @@ export default function CustomersView({
   session: any;
   dataCustomers: Customer[];
 }) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [customers, setCustomers] = useState<Customer[]>(dataCustomers);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
   const [showAddCustomer, setShowAddCustomer] = useState(false);
@@ -79,6 +82,10 @@ export default function CustomersView({
       })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
 
   // In the filteredCustomers calculation, add safe access:
   const filteredCustomers =

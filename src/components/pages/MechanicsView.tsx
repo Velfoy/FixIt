@@ -1,5 +1,6 @@
 "use client";
 import React, { FormEvent, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Mechanic, EmploymentType } from "@/types/mechanics";
 import {
   Search,
@@ -27,12 +28,17 @@ const MechanicsView = ({
   session: any;
   dataMechanics: Mechanic[];
 }) => {
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
   const [mechanics, setMechanics] = useState<Mechanic[]>(dataMechanics);
-  const [searchQuery, setSeacrhQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [selectedMechanic, setSelectedMechanic] = useState<number | null>(null);
   const [editingMechanicId, setEditingMechanicId] = useState<number | null>(
     null
   );
+  const [employmentTypeFilter, setEmploymentTypeFilter] =
+    useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -43,6 +49,11 @@ const MechanicsView = ({
     "INTERN",
   ];
   const [showAddMechanic, setShowAddMechanic] = useState(false);
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
   const [newMechanic, setNewMechanic] = useState<{
     salary?: number;
     employment_type?: EmploymentType;
@@ -86,11 +97,22 @@ const MechanicsView = ({
       const name = `${mechanic.firstName || " "} ${mechanic.lastName}`.trim();
       const email = mechanic.email || " ";
       const phone = mechanic.phone || " ";
-      return (
+
+      const matchesSearch =
         name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        phone.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+        phone.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesEmploymentType =
+        employmentTypeFilter === "ALL" ||
+        mechanic.employment_type === employmentTypeFilter;
+
+      const matchesStatus =
+        statusFilter === "ALL" ||
+        (statusFilter === "ACTIVE" && mechanic.is_Active) ||
+        (statusFilter === "TERMINATED" && !mechanic.is_Active);
+
+      return matchesSearch && matchesEmploymentType && matchesStatus;
     }) || [];
   const selectedMechanicData = mechanics?.find(
     (c) => c.id === selectedMechanic
@@ -300,9 +322,31 @@ const MechanicsView = ({
               type="text"
               placeholder="Search by name,email or phone"
               value={searchQuery}
-              onChange={(e) => setSeacrhQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             ></Input>
+          </div>
+          <div className="filters-wrapper">
+            <select
+              value={employmentTypeFilter}
+              onChange={(e) => setEmploymentTypeFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="ALL">All Employment Types</option>
+              <option value="FULL_TIME">Full Time</option>
+              <option value="PART_TIME">Part Time</option>
+              <option value="CONTRACTOR">Contractor</option>
+              <option value="INTERN">Intern</option>
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="ALL">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="TERMINATED">Terminated</option>
+            </select>
           </div>
         </div>
       </Card>

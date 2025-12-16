@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/layouts/Sidebar";
+import SearchBar from "@/components/layouts/SearchBar";
 import { getCachedSession } from "@/lib/session";
 import "../../styles/main_layout.css";
-import { Mic, User } from "lucide-react";
+import { User } from "lucide-react";
 import useFormattedDate from "@/hooks/useData";
 export default async function PrivateLayout({
   children,
@@ -24,12 +25,7 @@ export default async function PrivateLayout({
 
       <div className="content-layout">
         <div className="topbar">
-          <div className="search-box">
-            <Mic className="mic-icon" />
-            <span className="search-placeholder">
-              Search orders, cars, or parts...
-            </span>
-          </div>
+          <SearchBar />
 
           <div className="right-section">
             <div className="user-box">

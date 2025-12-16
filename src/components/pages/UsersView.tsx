@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { User, UserRole } from "@/types/users";
 import { UsersTable } from "@/components/tables/UsersTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Search } from "lucide-react";
 import "@/styles/users.css";
 
 const AVAILABLE_ROLES: UserRole[] = [
@@ -20,7 +23,10 @@ type UsersViewProps = {
 };
 
 const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
   const [users, setUsers] = useState<User[]>(dataUsers);
+  const [searchQuery, setSearchQuery] = useState<string>(urlSearchQuery);
 
   // Add-user modal state
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -36,6 +42,11 @@ const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
   const [roleDialogUser, setRoleDialogUser] = useState<User | null>(null);
   const [roleDialogValue, setRoleDialogValue] = useState<UserRole>("CLIENT");
   const [isRoleSaving, setIsRoleSaving] = useState(false);
+
+  // Keep local search state in sync with URL query param (?search=)
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
 
   const fullName = session?.user?.name || "";
   const firstNameFromSession =
@@ -192,9 +203,36 @@ const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
         <Button onClick={() => setIsAddOpen(true)}>+ Add User</Button>
       </div>
 
+      {/* Search / Filter Bar */}
+      <Card className="search-card">
+        <div className="search-card-inner">
+          <div className="search-wrapper">
+            <Search className="search-icon" />
+            <Input
+              type="text"
+              placeholder="Search by name, email or phone"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+        </div>
+      </Card>
+
       {/* Table */}
       <UsersTable
-        users={users}
+        users={users.filter((u) => {
+          const q = (searchQuery || "").toLowerCase();
+          if (!q) return true;
+          const name = `${u.first_name || ""} ${u.last_name || ""}`;
+          const email = u.email || "";
+          const phone = u.phone || "";
+          return (
+            name.toLowerCase().includes(q) ||
+            email.toLowerCase().includes(q) ||
+            phone.toLowerCase().includes(q)
+          );
+        })}
         onClickDeleteUser={handleUserDelete}
         onChangeRole={handleChangeRole}
       />

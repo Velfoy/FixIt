@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import {
@@ -52,6 +53,9 @@ export function OrdersView({
   session: any;
   dataServiceOrders: ServiceOrders[];
 }) {
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
+
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [showAddOrder, setShowAddOrder] = useState(false);
   const [orders, setOrders] = useState<ServiceOrders[]>(dataServiceOrders);
@@ -113,11 +117,15 @@ export function OrdersView({
   const [selectedMechanicId, setSelectedMechanicId] = useState<number | null>(
     null
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [statusFilter, setStatusFilter] = useState<StatusServiceOrder | "ALL">(
     "ALL"
   );
   const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
@@ -280,55 +288,49 @@ export function OrdersView({
         )}
       </div>
 
-      {/* Search and Filter Section */}
+      {/* Search and Filter Section - unified with Mechanics styling */}
       <Card className="search-card">
         <div className="search-card-inner">
-          <div className="filter-grid">
-            <div className="filter-field">
-              <label className="filter-label">Search Orders</label>
-              <div className="search-wrapper">
-                <Search className="search-icon" />
-                <Input
-                  className="search-input"
-                  placeholder="Search by car, license plate, issue, order number, mechanic..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="filter-field">
-              <label className="filter-label">Status</label>
-              <select
-                className="filter-select"
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(e.target.value as StatusServiceOrder | "ALL")
-                }
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="NEW">New</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="WAITING_FOR_PARTS">Waiting for Parts</option>
-                <option value="READY">Ready</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-            </div>
-            <div className="filter-field">
-              <label className="filter-label">Priority</label>
-              <select
-                className="filter-select"
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-              >
-                <option value="ALL">All Priorities</option>
-                <option value="LOW">Low</option>
-                <option value="NORMAL">Normal</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
-              </select>
-            </div>
+          <div className="search-wrapper">
+            <Search className="search-icon" />
+            <Input
+              className="search-input"
+              placeholder="Search by car, license plate, issue, order number, mechanic..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
+
+          <div className="filters-wrapper">
+            <select
+              className="filter-select"
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as StatusServiceOrder | "ALL")
+              }
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="NEW">New</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="WAITING_FOR_PARTS">Waiting for Parts</option>
+              <option value="READY">Ready</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+
+            <select
+              className="filter-select"
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+            >
+              <option value="ALL">All Priorities</option>
+              <option value="LOW">Low</option>
+              <option value="NORMAL">Normal</option>
+              <option value="HIGH">High</option>
+              <option value="URGENT">Urgent</option>
+            </select>
+          </div>
+
           <div className="filter-results">
             Showing {filteredOrders.length} of {orders.length} orders
           </div>

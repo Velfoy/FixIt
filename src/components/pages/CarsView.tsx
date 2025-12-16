@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -37,8 +38,8 @@ const carStatuses: StatusCar[] = [
 const formatDate = (date?: string | Date | null) => {
   if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
   const year = d.getFullYear();
   return `${day}.${month}.${year}`;
 };
@@ -64,7 +65,9 @@ export default function CarsView({
   branches,
   customers,
 }: CarsViewProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [cars, setCars] = useState<Car[]>(dataCars);
   const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
   const [showAddCar, setShowAddCar] = useState(false);
@@ -100,6 +103,9 @@ export default function CarsView({
     setCars(dataCars);
   }, [dataCars]);
 
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
   const filteredCars = cars.filter((car) =>
     [car.brand, car.model, car.vin, car.license_plate].some((v) =>
       v?.toLowerCase().includes(searchQuery.toLowerCase())

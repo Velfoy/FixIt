@@ -96,10 +96,7 @@ export async function PUT(req: NextRequest) {
     }
 
     if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     // Check if email is being changed and if it already exists
@@ -115,7 +112,10 @@ export async function PUT(req: NextRequest) {
 
       if (existingUser) {
         return NextResponse.json(
-          { error: "User with such email already exists, please enter another one" },
+          {
+            error:
+              "User with such email already exists, please enter another one",
+          },
           { status: 400 }
         );
       }

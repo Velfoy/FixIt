@@ -1,5 +1,6 @@
 "use client";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Part } from "@/types/part";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -17,7 +18,10 @@ const WarehouseView = ({
   session: any;
   dataWarehouse: Part[];
 }) => {
+  const searchParams = useSearchParams();
+  const urlSearchQuery = searchParams.get("search") || "";
   const [parts, setParts] = useState<Part[]>(dataWarehouse);
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [newPart, setNewPart] = useState<{
     name: string;
     part_number: string;
@@ -34,12 +38,15 @@ const WarehouseView = ({
     supplier: "",
   });
   const [showAddPart, setShowAddPart] = useState(false);
-  const [searchQuery, setSeacrhQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingPartId, setEditingPartId] = useState<number | null>(null);
   const [showRestockModal, setShowRestockModal] = useState(false);
   const [restockPartId, setRestockPartId] = useState<number | null>(null);
   const [restockAmount, setRestockAmount] = useState<number>(0);
+
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
   const filteredParts =
     parts?.filter((part) => {
       const name = part.name || "";
@@ -257,7 +264,7 @@ const WarehouseView = ({
               type="text"
               placeholder="Search by name,part number or supplier name"
               value={searchQuery}
-              onChange={(e) => setSeacrhQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             ></Input>
           </div>

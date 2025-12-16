@@ -40,15 +40,45 @@
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease-in-out;
+  border: none;
+  flex: 1;
+  max-width: 500px;
 }
 .search-box:hover {
   box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.4);
   transform: translateY(2px);
 }
+.search-box:focus {
+  outline: none;
+}
 .mic-icon {
   width: 16px;
   height: 16px;
   color: #9ca3af;
+  flex-shrink: 0;
+}
+.search-input {
+  padding-left: 36px !important;
+}
+.topbar .search-input {
+  padding-left: 0px !important;
+}
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1f2937;
+  background: transparent;
+  font-family: inherit;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-input:focus {
+  outline: none;
 }
 
 .search-placeholder {
