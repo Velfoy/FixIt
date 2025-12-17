@@ -198,7 +198,7 @@ const WarehouseView = ({
           <h1 className="customers-title">Warehouse Management</h1>
           <p className="customers-subtitle">Manage and track parts</p>
         </div>
-        <div>
+        <div className="buttons_warehouse">
           <Button
             onClick={() => {
               setRestockPartId(null);

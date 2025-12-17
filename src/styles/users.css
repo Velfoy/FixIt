@@ -43,7 +43,7 @@
 @media (max-width: 640px) {
   .customers-header {
     flex-direction: column;
-    align-items: flex-start;
+    gap: 0px;
   }
 }
 
@@ -247,18 +247,23 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 4px;
+  min-width: 0;
 }
 
 .customer-name {
   margin: 0;
   font-size: 16px;
   color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .customer-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px 12px;
   font-size: 13px;
   color: var(--text-muted);
 }
@@ -267,6 +272,11 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* TOTALS */
@@ -275,6 +285,7 @@
   text-align: right;
   flex-shrink: 0;
   min-width: 110px;
+  white-space: nowrap;
 }
 
 .customer-total-amount {
@@ -326,6 +337,7 @@
   .customer-row {
     flex-wrap: wrap;
     align-items: flex-start;
+    gap: 12px;
   }
 
   .customer-total {
@@ -334,6 +346,56 @@
 
   .customer-actions {
     margin-left: auto;
+  }
+
+  /* Make meta two columns on tablets for better fit */
+  .customer-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    width: 100%;
+  }
+  .customer-meta-item {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .customer-row {
+    gap: 10px;
+  }
+  .customer-main-header {
+    gap: 6px;
+  }
+  .customer-name {
+    font-size: 15px;
+  }
+  .customer-meta {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .customer-total {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-row {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .customer-name {
+    font-size: 14px;
+  }
+  .customer-meta {
+    gap: 4px 8px;
+  }
+  .customer-meta-item {
+    font-size: 12px;
+  }
+  .customer-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }
 
@@ -577,5 +639,10 @@
   }
   .stats-card-inner {
     padding: 8px 18px;
+  }
+  .buttons_warehouse {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
   }
 }

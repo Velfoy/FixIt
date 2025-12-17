@@ -6,7 +6,9 @@
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   opacity: 0;
   transition: opacity 0.18s ease;
 }
@@ -29,9 +31,10 @@
   z-index: 51;
 
   width: 100%;
-  max-width: 800px;
-  max-height: 90%;
-  overflow-y: scroll;
+  max-width: min(820px, calc(100% - 2rem));
+  max-height: min(85vh, calc(100vh - 2rem));
+  overflow-y: auto;
+  box-sizing: border-box;
 
   transform: translate(-50%, -50%) scale(0.97);
   opacity: 0;
@@ -39,8 +42,8 @@
   display: grid;
   gap: 12px;
 
-  padding: 18px 18px 16px;
-  border-radius: 16px;
+  padding: 14px 14px 12px;
+  border-radius: 14px;
   border: 1px solid #d4d4d4;
   background: #f9fafb;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
@@ -58,6 +61,25 @@
   opacity: 0;
   transform: translate(-50%, -48%) scale(0.97);
   pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .dialog-content-base {
+    max-width: min(780px, calc(100% - 1.5rem));
+    max-height: 88vh;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .dialog-grid,
+  .dialog-form-grid,
+  .dialog-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+  }
 }
 
 /* === CLOSE BUTTON === */
@@ -399,9 +421,11 @@
 
 @media (max-width: 640px) {
   .dialog-content-base {
-    max-width: calc(100% - 1.5rem);
-    padding: 14px 14px 12px;
-    gap: 10px;
+    max-width: 92vw;
+    max-height: 88vh;
+    padding: 10px 10px 8px;
+    gap: 8px;
+    border-radius: 12px;
   }
 
   .dialog-header-block {
@@ -424,5 +448,44 @@
 
   .dialog-form-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-content-base {
+    max-width: 94vw;
+    max-height: 88vh;
+    padding: 9px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .dialog-header-block {
+    gap: 8px;
+  }
+
+  .dialog-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+
+  .dialog-title,
+  .dialog-title-base {
+    font-size: 16px;
+  }
+
+  .dialog-field-label {
+    font-size: 10px;
+  }
+
+  .dialog-field-value,
+  .dialog-input,
+  .dialog-select {
+    font-size: 12px;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
   }
 }
