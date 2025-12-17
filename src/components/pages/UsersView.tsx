@@ -201,7 +201,12 @@ const UsersView: React.FC<UsersViewProps> = ({ session, dataUsers }) => {
           </p>
         </div>
 
-        <Button onClick={() => setIsAddOpen(true)}>+ Add User</Button>
+        <Button
+          className="add-customer-btn-override"
+          onClick={() => setIsAddOpen(true)}
+        >
+          + Add User
+        </Button>
       </div>
 
       {/* Search / Filter Bar */}
