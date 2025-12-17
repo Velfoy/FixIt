@@ -52,10 +52,10 @@ const Sidebar: React.FC<SidebarProps> = ({ role }: SidebarProps) => {
       <div className="sidebar-divider" />
 
       {/* Dashboard */}
-      {/* <a href={`/${safeRole}/dashboard`} className="sidebar-btn">
+      <a href={`/${safeRole}/dashboard`} className="sidebar-btn">
         <Home className="icon" />
         <span className="sidebar-text">Dashboard</span>
-      </a> */}
+      </a>
 
       {/* Admin-only */}
       {safeRole === "admin" && (

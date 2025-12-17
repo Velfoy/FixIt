@@ -112,3 +112,232 @@
   width: auto;
   object-fit: contain;
 }
+
+/* Responsive Design */
+/* Tablets (768px to 1024px) */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 65px;
+    padding: 12px 0;
+    gap: 10px;
+  }
+
+  .sidebar:hover {
+    width: 200px;
+  }
+
+  .sidebar-btn {
+    height: 44px;
+    margin-left: 8px;
+    padding: 0 14px;
+  }
+
+  .sidebar-text {
+    font-size: 14px;
+  }
+
+  .sidebar:hover .sidebar-text {
+    max-width: 120px;
+    margin-left: 10px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-logo {
+    width: 45px;
+    height: 36px;
+    margin-left: 8px;
+  }
+
+  .sidebar-divider {
+    width: 35px;
+    margin-left: 14px;
+  }
+
+  .sidebar:hover .sidebar-divider {
+    width: 160px;
+  }
+}
+
+/* Mobile (640px to 768px) */
+@media (max-width: 768px) {
+  .sidebar-bottom .sidebar-btn:last-child {
+    margin-bottom: 30px;
+  }
+  .sidebar {
+    width: 70px;
+    padding: 12px 0;
+    gap: 10px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 50;
+    overflow-y: auto;
+  }
+
+  .sidebar:hover {
+    width: 280px;
+  }
+
+  .sidebar-btn {
+    height: 44px;
+    margin-left: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .sidebar-text {
+    font-size: 14px;
+  }
+
+  .sidebar:hover .sidebar-text {
+    max-width: 200px;
+    margin-left: 12px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar-logo {
+    width: 50px;
+    height: 40px;
+    margin-left: 10px;
+  }
+
+  .sidebar-divider {
+    width: 45px;
+    margin-left: 16px;
+  }
+
+  .sidebar:hover .sidebar-divider {
+    width: 240px;
+  }
+
+  .main-layout {
+    margin-left: 70px;
+  }
+}
+
+/* Small Mobile (480px to 640px) */
+@media (max-width: 640px) {
+  .sidebar {
+    width: 68px;
+    padding: 12px 0;
+    gap: 10px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 50;
+    overflow-y: auto;
+  }
+
+  .sidebar:hover {
+    width: 270px;
+  }
+
+  .sidebar-btn {
+    height: 44px;
+    margin-left: 10px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  .sidebar-text {
+    font-size: 13px;
+  }
+
+  .sidebar:hover .sidebar-text {
+    max-width: 190px;
+    margin-left: 12px;
+  }
+
+  .icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .sidebar-logo {
+    width: 48px;
+    height: 38px;
+    margin-left: 10px;
+  }
+
+  .sidebar-divider {
+    width: 43px;
+    margin-left: 16px;
+  }
+
+  .sidebar:hover .sidebar-divider {
+    width: 230px;
+  }
+
+  .main-layout {
+    margin-left: 68px;
+  }
+}
+
+/* Extra Small Mobile (up to 480px) */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 65px;
+    padding: 12px 0;
+    gap: 10px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 50;
+    overflow-y: auto;
+  }
+
+  .sidebar:hover {
+    width: 260px;
+  }
+
+  .sidebar-btn {
+    height: 42px;
+    margin-left: 10px;
+    padding: 0 13px;
+    font-size: 12px;
+  }
+
+  .sidebar-text {
+    font-size: 12px;
+  }
+
+  .sidebar:hover .sidebar-text {
+    max-width: 180px;
+    margin-left: 12px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-logo {
+    width: 45px;
+    height: 36px;
+    margin-left: 10px;
+  }
+
+  .sidebar-divider {
+    width: 40px;
+    margin-left: 16px;
+  }
+
+  .sidebar:hover .sidebar-divider {
+    width: 220px;
+  }
+
+  .main-layout {
+    margin-left: 65px;
+  }
+}
