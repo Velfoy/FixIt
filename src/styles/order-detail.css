@@ -21,6 +21,7 @@
 
 .order-license-label {
   color: white;
+  text-align: end;
   margin: 0;
 }
 
@@ -593,4 +594,465 @@
 
 .order-comment-attachment-label {
   margin-left: 6px;
+}
+
+/* ===== RESPONSIVE ORDER DETAILS ===== */
+
+/* Tablet screens - 900px */
+@media (max-width: 900px) {
+  .order-header-spacing {
+    margin-bottom: 10px;
+  }
+  .order-license-label {
+    text-align: center;
+  }
+
+  .order-status-pill {
+    font-size: 13px;
+  }
+
+  .order-issue-tag {
+    font-size: 13px;
+    margin-left: 8px;
+  }
+
+  .order-stats-grid {
+    gap: 12px;
+  }
+
+  .edit-button_order,
+  .edit-button_trans {
+    font-size: 12px;
+    padding: 5px 14px;
+  }
+
+  .order-comment-card {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* Tablet/Mobile - 768px */
+@media (max-width: 768px) {
+  .customers-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .left_order {
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .order-status-pill {
+    font-size: 12px;
+  }
+
+  .edit-button_order {
+    margin-left: 0 !important;
+    font-size: 11px;
+    padding: 4px 12px;
+  }
+
+  .order-issue-tag {
+    font-size: 12px;
+    margin-left: 6px;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .order-license-value {
+    text-align: center;
+  }
+
+  .order-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .order-detail-row {
+    gap: 12px;
+    padding: 10px 12px;
+  }
+
+  .order-task-description {
+    font-size: 13px;
+  }
+
+  .order-payment-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .order-comment-author-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .order-comment-author {
+    font-size: 14px;
+  }
+
+  .order-comment-title-italic {
+    font-size: 12px;
+  }
+
+  .order-comment-message {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+/* Small mobile - 640px */
+@media (max-width: 640px) {
+  .customers-title {
+    font-size: 20px;
+  }
+
+  .customers-subtitle {
+    font-size: 12px;
+  }
+
+  .order-header-spacing {
+    margin-bottom: 8px;
+  }
+
+  .left_order {
+    gap: 6px;
+  }
+
+  .order-status-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+
+  .edit-button_order,
+  .edit-button_trans {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  /* Stack transaction buttons full-width */
+  .transaction-details-header,
+  .transaction-actions {
+    width: 100%;
+  }
+
+  .transaction-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .transaction-actions .edit-button_trans {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .icon-xxx {
+    height: 16px;
+  }
+
+  .order-issue-tag {
+    font-size: 11px;
+    margin-left: 0;
+  }
+
+  .stats-card-inner {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .stats-label_order {
+    font-size: 10px;
+  }
+
+  .stats-value_order {
+    font-size: 12px;
+  }
+
+  .order-detail-row {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .order-task-description {
+    font-size: 12px;
+  }
+
+  .order-section-header {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .order-search-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .order-summary-card {
+    padding: 10px;
+  }
+
+  .order-summary-title {
+    font-size: 14px;
+  }
+
+  .order-summary-row {
+    font-size: 12px;
+  }
+
+  .order-summary-total {
+    font-size: 14px;
+  }
+
+  .order-comment-form {
+    padding: 16px;
+  }
+
+  .order-comment-title {
+    font-size: 14px;
+  }
+
+  .order-comment-textarea {
+    min-height: 90px;
+  }
+
+  .order-comment-author {
+    font-size: 13px;
+  }
+
+  .order-comment-meta {
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .order-comment-meta span {
+    font-size: 11px;
+  }
+
+  .order-comment-message {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .order-comment-attachments {
+    padding: 10px;
+  }
+
+  .order-comment-attachments-title {
+    font-size: 10px;
+  }
+
+  .order-comment-attachment {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+
+/* Extra small mobile - 480px */
+@media (max-width: 480px) {
+  .customers-title {
+    font-size: 18px;
+  }
+
+  .customers-subtitle {
+    font-size: 11px;
+  }
+
+  .add-customer-btn-override {
+    width: 100%;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .left_order {
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .order-status-pill {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .edit-button_order,
+  .edit-button_trans {
+    width: 100%;
+    justify-content: center;
+    font-size: 10px;
+    padding: 4px 8px;
+    margin-left: 0 !important;
+  }
+
+  .icon-xxx {
+    height: 14px;
+  }
+
+  .order-issue-tag {
+    font-size: 10px;
+  }
+
+  .parts-stats-grid {
+    gap: 8px;
+  }
+
+  .stats-card-inner {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .stats-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .stats-label_order {
+    font-size: 9px;
+  }
+
+  .stats-value_order {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  .order-detail-row {
+    padding: 6px 8px;
+    gap: 8px;
+  }
+
+  .order-task-description {
+    font-size: 11px;
+  }
+
+  .order-section-header {
+    font-size: 13px;
+  }
+
+  .order-summary-card {
+    padding: 8px;
+  }
+
+  .order-summary-title {
+    font-size: 13px;
+  }
+
+  .order-summary-row {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .order-summary-total {
+    font-size: 13px;
+  }
+
+  .order-comment-form {
+    padding: 12px;
+  }
+
+  .order-comment-title {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .order-comment-input,
+  .order-comment-textarea {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .order-comment-textarea {
+    min-height: 80px;
+  }
+
+  .order-upload-label {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .order-upload-note {
+    font-size: 11px;
+  }
+
+  .order-uploaded-list {
+    padding: 8px;
+  }
+
+  .order-uploaded-list-title {
+    font-size: 11px;
+  }
+
+  .order-uploaded-item {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .order-comment-submit {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .order-comments-heading {
+    font-size: 14px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+  }
+
+  .order-comment-card-wrapper {
+    padding: 12px;
+  }
+
+  .order-comment-author {
+    font-size: 12px;
+  }
+
+  .order-comment-title-italic {
+    font-size: 11px;
+  }
+
+  .order-comment-meta {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .order-comment-meta span {
+    font-size: 10px;
+  }
+
+  .order-comment-delete {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .order-comment-message {
+    font-size: 11px;
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .order-comment-attachments {
+    padding: 8px;
+  }
+
+  .order-comment-attachments-title {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+
+  .order-comment-attachment {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .order-pay-option {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .task-textarea {
+    min-height: 80px;
+  }
 }
