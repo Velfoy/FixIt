@@ -1620,11 +1620,11 @@ export function OrderDetailView({
               session?.user?.role === "MECHANIC") && (
               <div className="transaction-details-header">
                 <div className="transaction-actions">
-                  {session?.user?.role === "ADMIN" && (
+                  {/* {session?.user?.role === "ADMIN" && (
                     <Button className="edit-button_trans">
                       Generate Invoice
                     </Button>
-                  )}
+                  )} */}
                   <Button
                     onClick={() => setShowAddItem(true)}
                     className="edit-button_trans"
