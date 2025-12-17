@@ -144,6 +144,36 @@
   transform: translateY(0);
 }
 
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-cancel {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.auth-cancel:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .auth-toggle {
   text-align: center;
   padding-top: 10px;
