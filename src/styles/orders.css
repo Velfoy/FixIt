@@ -455,3 +455,209 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== RESPONSIVE ORDERS ===== */
+
+/* Tablet screens */
+@media (max-width: 900px) {
+  .order-header {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .order_car_year {
+    font-size: 12px;
+  }
+
+  .status-new,
+  .status-in-progress,
+  .status-waiting,
+  .status-ready,
+  .status-completed,
+  .status-cancelled {
+    min-width: 120px;
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+
+  .mechanic-right {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .order_chevron {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    margin-left: 0;
+  }
+
+  .customer-row.paddingBottom {
+    position: relative;
+    padding-right: 40px;
+  }
+
+  .status-order {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .status-new,
+  .status-in-progress,
+  .status-waiting,
+  .status-ready,
+  .status-completed,
+  .status-cancelled {
+    min-width: 100px;
+    font-size: 10px;
+  }
+
+  .mechanic-right {
+    margin-left: 0;
+    font-size: 12px;
+  }
+
+  .order_car_year {
+    font-size: 11px;
+  }
+
+  .priority_LOW,
+  .priority_NORMAL,
+  .priority_HIGH,
+  .priority_URGENT {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+}
+
+@media (max-width: 640px) {
+  .order-header {
+    gap: 3px;
+  }
+
+  .customer-row.paddingBottom {
+    padding-right: 35px;
+  }
+
+  .order_chevron {
+    top: 10px;
+    right: 10px;
+  }
+
+  .status-order {
+    gap: 6px;
+    width: 100%;
+  }
+
+  .status-order .customer-meta-item {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .status-new,
+  .status-in-progress,
+  .status-waiting,
+  .status-ready,
+  .status-completed,
+  .status-cancelled {
+    min-width: auto;
+    width: 100%;
+    max-width: 150px;
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .mechanic-right {
+    font-size: 11px;
+  }
+
+  .progress-header {
+    font-size: 11px;
+  }
+
+  .progress-value-top {
+    font-size: 11px;
+  }
+
+  .progress-bar {
+    height: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-row.paddingBottom {
+    padding: 8px 32px 8px 8px;
+  }
+
+  .order_chevron {
+    top: 8px;
+    right: 8px;
+  }
+
+  .order-header {
+    gap: 2px;
+  }
+
+  .order_car_year {
+    font-size: 10px;
+  }
+
+  .status-order {
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .status-order .customer-meta-item {
+    font-size: 11px;
+  }
+
+  .status-new,
+  .status-in-progress,
+  .status-waiting,
+  .status-ready,
+  .status-completed,
+  .status-cancelled {
+    font-size: 9px;
+    padding: 2px 4px;
+    max-width: 120px;
+  }
+
+  .mechanic-right {
+    font-size: 10px;
+  }
+
+  .priority_LOW,
+  .priority_NORMAL,
+  .priority_HIGH,
+  .priority_URGENT {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+
+  .progress-header {
+    font-size: 10px;
+  }
+
+  .progress-value-top {
+    font-size: 10px;
+  }
+
+  .progress-bar {
+    height: 6px;
+  }
+
+  .customer-avatar {
+    width: 40px;
+    height: 40px;
+  }
+}
