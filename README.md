@@ -3,19 +3,16 @@
 Role-based workshop management platform built with Next.js 16, Prisma, and NextAuth. It covers the full service lifecycle: intake, tasking, parts, invoicing, payments, and customer communication across multiple branches.
 
 ### Demo
-
-Each thumbnail opens the role demo on YouTube.
-
-- Warehouse
+ #### Warehouse
   [![Warehouse demo](https://img.youtube.com/vi/BeaRlvya7OA/0.jpg)](https://youtu.be/BeaRlvya7OA)
 
-- Mechanic
+#### Mechanic
   [![Mechanic demo](https://img.youtube.com/vi/xkfuUDAbLDA/0.jpg)](https://youtu.be/xkfuUDAbLDA)
 
-- Client
+#### Client
   [![Client demo](https://img.youtube.com/vi/Brmvh5GDzDM/0.jpg)](https://youtu.be/Brmvh5GDzDM)
 
-- Admin
+#### Admin
   [![Admin demo](https://img.youtube.com/vi/7qiWTHk5Ht4/0.jpg)](https://youtu.be/7qiWTHk5Ht4)
 
 ### Highlights
