@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## FixIt – Automotive Service Management
 
-## Getting Started
+Role-based workshop management platform built with Next.js 16, Prisma, and NextAuth. It covers the full service lifecycle: intake, tasking, parts, invoicing, payments, and customer communication across multiple branches.
 
-First, run the development server:
+### Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Warehouse
+<div align="center">
+	<iframe width="100%" height="480" src="https://www.youtube.com/embed/BeaRlvya7OA" title="FixIt demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+- Mechanic
+<div align="center">
+	<iframe width="100%" height="480" src="https://www.youtube.com/embed/xkfuUDAbLDA" title="FixIt demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+- Client
+<div align="center">
+	<iframe width="100%" height="480" src="https://www.youtube.com/embed/Brmvh5GDzDM" title="FixIt demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+- Admin
+<div align="center">
+	<iframe width="100%" height="480" src="https://www.youtube.com/embed/7qiWTHk5Ht4" title="FixIt demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+### Highlights
+
+- Role-aware dashboards and routing (ADMIN, MECHANIC, WAREHOUSE, RECEPTIONIST, CLIENT)
+- Branch management with employees, vehicles, and customers tied to locations
+- Service orders with tasks, comments, attachments, progress tracking, and status history
+- Inventory and parts usage with warehouse deduction flags and minimum stock thresholds
+- Invoicing and Stripe-backed payments, including status tracking and receipts
+- Notifications, activity logs, and review capture for closed work
+
+### Tech Stack
+
+- Next.js App Router (TypeScript)
+- Prisma ORM with PostgreSQL
+- NextAuth for authentication/authorization
+- Stripe for payments
+- Radix UI, Tailwind CSS, and custom component library
+
+### Project Layout
+
+- app/(first_page) and app/(unpublic)/[role] – public entry, auth flows, and role-scoped dashboards
+- app/api – REST-style API routes for auth, branches, cars, customers, dashboard data, mechanics, orders, settings, users, warehouse, and Stripe payment intents
+- prisma/schema.prisma – relational model for users, branches, vehicles, service orders, tasks, parts, invoices, payments, and notifications
+- src/lib – auth/session helpers, Prisma client, utilities, and route access checks
+- src/components – layouts, UI primitives, tables, forms, and feature views
+- public/uploads – user-generated assets (e.g., task comment attachments)
+
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL database
+- Stripe account and API keys
+
+### Environment
+
+Create a `.env` file with at least:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="replace-with-strong-secret"
+STRIPE_SECRET_KEY="sk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npx prisma generate
+npx prisma migrate dev --name init
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Scripts
 
-## Learn More
+- `npm run dev` – start Next.js in development
+- `npm run build` – production build
+- `npm run start` – run the built app
+- `npm run lint` – ESLint (Next.js rules)
 
-To learn more about Next.js, take a look at the following resources:
+### Deployment Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Ensure `DATABASE_URL`, `NEXTAUTH_SECRET`, and Stripe secrets are set in the hosting environment.
+- Run `prisma migrate deploy` on deploy to sync the database schema.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Conventions
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Use role-based routes under `app/(unpublic)/[role]` to keep access isolated.
+- Keep uploads within `public/uploads` and store metadata through the `document` model.
