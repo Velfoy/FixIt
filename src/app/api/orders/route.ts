@@ -43,7 +43,7 @@ export async function GET() {
     console.error("GET /api/orders error:", error);
     return NextResponse.json(
       { error: "Failed to fetch orders" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -152,7 +152,7 @@ export async function POST(req: Request) {
     console.error("POST /api/orders error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create order" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -176,13 +176,13 @@ export async function DELETE(req: NextRequest) {
     }
     return NextResponse.json(
       { message: "Order deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error deleting car:", error);
     return NextResponse.json(
       { error: "Failed to delete car" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

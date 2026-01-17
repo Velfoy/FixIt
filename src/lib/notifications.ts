@@ -13,7 +13,7 @@ function uniqueUserIds(userIds: Array<number | null | undefined>): number[] {
 
 export async function notifyUsers(
   userIds: Array<number | null | undefined>,
-  payload: NotifyPayload
+  payload: NotifyPayload,
 ) {
   const targets = uniqueUserIds(userIds);
   if (!targets.length) {
@@ -33,7 +33,7 @@ export async function notifyUsers(
 
 export async function notifyUsersSafe(
   userIds: Array<number | null | undefined>,
-  payload: NotifyPayload
+  payload: NotifyPayload,
 ) {
   try {
     return await notifyUsers(userIds, payload);

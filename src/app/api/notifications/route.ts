@@ -68,7 +68,10 @@ export async function PATCH(req: NextRequest) {
   const read = Boolean(body?.read);
 
   if (!ids.length) {
-    return NextResponse.json({ error: "No notification ids provided" }, { status: 400 });
+    return NextResponse.json(
+      { error: "No notification ids provided" },
+      { status: 400 },
+    );
   }
 
   const result = await prisma.notification.updateMany({
@@ -91,7 +94,10 @@ export async function DELETE(req: NextRequest) {
   const ids: number[] = Array.isArray(body?.ids) ? body.ids : [];
 
   if (!ids.length) {
-    return NextResponse.json({ error: "No notification ids provided" }, { status: 400 });
+    return NextResponse.json(
+      { error: "No notification ids provided" },
+      { status: 400 },
+    );
   }
 
   const result = await prisma.notification.deleteMany({

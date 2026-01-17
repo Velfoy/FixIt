@@ -77,9 +77,12 @@ export default function ProfilePage() {
   // Notifications state
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
-  const [notificationError, setNotificationError] = useState<string | null>(null);
-  const [notificationTypeFilter, setNotificationTypeFilter] =
-    useState<NotificationType | "ALL">("ALL");
+  const [notificationError, setNotificationError] = useState<string | null>(
+    null,
+  );
+  const [notificationTypeFilter, setNotificationTypeFilter] = useState<
+    NotificationType | "ALL"
+  >("ALL");
   const [notificationUnreadOnly, setNotificationUnreadOnly] = useState(false);
 
   useEffect(() => {
@@ -191,7 +194,7 @@ export default function ProfilePage() {
       }
 
       const res = await fetch(
-        `/api/notifications${params.toString() ? `?${params.toString()}` : ""}`
+        `/api/notifications${params.toString() ? `?${params.toString()}` : ""}`,
       );
 
       if (!res.ok) {
@@ -214,7 +217,7 @@ export default function ProfilePage() {
 
   const updateNotificationReadState = (id: number, read: boolean) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read } : n))
+      prev.map((n) => (n.id === id ? { ...n, read } : n)),
     );
   };
 
@@ -480,7 +483,7 @@ export default function ProfilePage() {
                 <span className="settings-info-value">
                   {(roleSpecificData as EmployeeData).employment_type?.replace(
                     "_",
-                    " "
+                    " ",
                   ) || "Not set"}
                 </span>
               </div>
@@ -496,7 +499,7 @@ export default function ProfilePage() {
                 <span className="settings-info-value">
                   {(roleSpecificData as EmployeeData).hired_at
                     ? new Date(
-                        (roleSpecificData as EmployeeData).hired_at!
+                        (roleSpecificData as EmployeeData).hired_at!,
                       ).toLocaleDateString()
                     : "Not set"}
                 </span>
@@ -540,14 +543,18 @@ export default function ProfilePage() {
         <div className="settings-section-header settings-section-header--between">
           <div>
             <h2 className="settings-section-title">Notifications</h2>
-            <p className="settings-subtitle">Events related to your orders and warehouse updates</p>
+            <p className="settings-subtitle">
+              Events related to your orders and warehouse updates
+            </p>
           </div>
           <div className="notification-filters">
             <select
               className="settings-input notification-select"
               value={notificationTypeFilter}
               onChange={(e) =>
-                setNotificationTypeFilter(e.target.value as NotificationType | "ALL")
+                setNotificationTypeFilter(
+                  e.target.value as NotificationType | "ALL",
+                )
               }
             >
               <option value="ALL">All types</option>
@@ -575,7 +582,9 @@ export default function ProfilePage() {
         </div>
 
         {notificationError && (
-          <div className="settings-alert settings-alert-error">{notificationError}</div>
+          <div className="settings-alert settings-alert-error">
+            {notificationError}
+          </div>
         )}
 
         {notificationsLoading ? (
@@ -590,7 +599,9 @@ export default function ProfilePage() {
                 className={`notification-card ${n.read ? "read" : "unread"}`}
               >
                 <div className="notification-card-header">
-                  <span className={`notification-pill notification-pill-${n.type.toLowerCase()}`}>
+                  <span
+                    className={`notification-pill notification-pill-${n.type.toLowerCase()}`}
+                  >
                     {n.type.replace("_", " ")}
                   </span>
                   <span className="notification-date">
@@ -598,7 +609,9 @@ export default function ProfilePage() {
                   </span>
                 </div>
                 <p className="notification-title">{n.title}</p>
-                {n.message && <p className="notification-message">{n.message}</p>}
+                {n.message && (
+                  <p className="notification-message">{n.message}</p>
+                )}
                 <div className="notification-actions">
                   <button
                     type="button"

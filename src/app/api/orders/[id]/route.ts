@@ -8,11 +8,11 @@ import { notification_type } from "@prisma/client";
 function mapOrder(
   o: any,
   currentUserId: number | null = null,
-  currentEmployeeId: number | null = null
+  currentEmployeeId: number | null = null,
 ) {
   // Check if there's a successful payment
   const hasSuccessfulPayment = o.payment?.some(
-    (p: any) => p.status === "SUCCESS"
+    (p: any) => p.status === "SUCCESS",
   );
   const paymentStatus = hasSuccessfulPayment ? "PAID" : null;
 
@@ -219,24 +219,21 @@ export async function PUT(req: NextRequest, context: any) {
               : notification_type.MESSAGE,
           title: `Order ${existing?.order_number || id} status updated`,
           message: `New status: ${status}`,
-        }
+        },
       );
     }
 
     if (paymentStatus === "PAID") {
-      await notifyUsersSafe(
-        [customerUserId, ...adminUsers.map((a) => a.id)],
-        {
-          type: notification_type.MESSAGE,
-          title: `Order ${existing?.order_number || id} payment received`,
-          message: `Amount: ${paidAmount || 0}`,
-        }
-      );
+      await notifyUsersSafe([customerUserId, ...adminUsers.map((a) => a.id)], {
+        type: notification_type.MESSAGE,
+        title: `Order ${existing?.order_number || id} payment received`,
+        message: `Amount: ${paidAmount || 0}`,
+      });
     }
 
     return NextResponse.json(
       mapOrder(updated, sessionUserId, sessionEmployeeId),
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("PUT /api/orders/[id] error:", error);

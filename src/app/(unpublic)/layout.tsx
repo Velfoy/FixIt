@@ -39,18 +39,21 @@ export default async function PrivateLayout({
           <div className="right-section">
             <div className="user-box">
               <div className="status-dot"></div>
-              <Link href={`/${role}/profile#notifications`} className="avatar-wrapper">
+              <Link
+                href={`/${role}/profile#notifications`}
+                className="avatar-wrapper"
+              >
                 <div className="avatar">
                   <User className="avatar-icon" />
                   {unreadCount > 0 && (
-                    <span className="notification-badge-avatar">{unreadCount}</span>
+                    <span className="notification-badge-avatar">
+                      {unreadCount}
+                    </span>
                   )}
                 </div>
               </Link>
               <div className="user-info">
-                <div className="username">
-                  Hello, {userName}
-                </div>
+                <div className="username">Hello, {userName}</div>
               </div>
               <span className="date">{useFormattedDate()}</span>
               <form

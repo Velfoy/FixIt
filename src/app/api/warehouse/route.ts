@@ -13,7 +13,7 @@ export async function GET() {
     console.error("Error fetching customers:", error);
     return NextResponse.json(
       { error: "Failed to fetch customers" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     if (!name || !part_number || !quantity || !min_quantity || !price) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const existing = await prisma.part.findUnique({
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     if (existing) {
       return NextResponse.json(
         { error: "Part with such part number already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const data: any = {
@@ -54,17 +54,20 @@ export async function POST(req: Request) {
       select: { id: true },
     });
 
-    await notifyUsersSafe(warehouseUsers.map((u) => u.id), {
-      type: notification_type.MESSAGE,
-      title: `New part added: ${name}`,
-      message: `Qty: ${quantity}, Min: ${min_quantity}`,
-    });
+    await notifyUsersSafe(
+      warehouseUsers.map((u) => u.id),
+      {
+        type: notification_type.MESSAGE,
+        title: `New part added: ${name}`,
+        message: `Qty: ${quantity}, Min: ${min_quantity}`,
+      },
+    );
     return NextResponse.json(createNewPart, { status: 201 });
   } catch (error) {
     console.error("POST /api/warehouse error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -114,14 +117,17 @@ export async function PATCH(req: Request) {
           select: { id: true },
         });
 
-        await notifyUsersSafe(warehouseUsers.map((u) => u.id), {
-          type: notification_type.MESSAGE,
-          title:
-            delta > 0
-              ? `Restock: ${existingPart.name}`
-              : `Deduction: ${existingPart.name}`,
-          message: `Change: ${delta > 0 ? "+" : ""}${delta} (new qty: ${quantity})`,
-        });
+        await notifyUsersSafe(
+          warehouseUsers.map((u) => u.id),
+          {
+            type: notification_type.MESSAGE,
+            title:
+              delta > 0
+                ? `Restock: ${existingPart.name}`
+                : `Deduction: ${existingPart.name}`,
+            message: `Change: ${delta > 0 ? "+" : ""}${delta} (new qty: ${quantity})`,
+          },
+        );
       }
     }
 
@@ -130,7 +136,7 @@ export async function PATCH(req: Request) {
     console.error("PATCH /api/warehouse error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -154,13 +160,13 @@ export async function DELETE(req: Request) {
     }
     return NextResponse.json(
       { message: "User deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("DELETE /api/warehouse error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -47,7 +47,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           {
             error: `Insufficient quantity for part: ${orderPart.part_name}. Available: ${orderPart.part_quantity}, Needed: ${orderPart.quantity}`,
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -81,11 +81,14 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       select: { id: true },
     });
 
-    await notifyUsersSafe(warehouseUsers.map((u) => u.id), {
-      type: notification_type.MESSAGE,
-      title: `Warehouse deduction for order ${orderId}`,
-      message: `Deducted ${deductedParts.length} part(s) from stock`,
-    });
+    await notifyUsersSafe(
+      warehouseUsers.map((u) => u.id),
+      {
+        type: notification_type.MESSAGE,
+        title: `Warehouse deduction for order ${orderId}`,
+        message: `Deducted ${deductedParts.length} part(s) from stock`,
+      },
+    );
 
     return NextResponse.json({
       message: `Successfully deducted ${deductedParts.length} part(s) from warehouse`,
@@ -95,7 +98,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     console.error("Error deducting parts:", error);
     return NextResponse.json(
       { error: "Failed to deduct parts from warehouse" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
