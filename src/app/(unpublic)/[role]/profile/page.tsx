@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "@/styles/settings.css";
 
 interface UserProfile {
@@ -31,6 +31,21 @@ interface EmployeeData {
   } | null;
 }
 
+type NotificationType =
+  | "REPAIR_COMPLETED"
+  | "INSPECTION_SOON"
+  | "PROMOTION"
+  | "MESSAGE";
+
+interface UserNotification {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message: string | null;
+  read: boolean;
+  created_at: string;
+}
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roleSpecificData, setRoleSpecificData] = useState<
@@ -58,6 +73,14 @@ export default function ProfilePage() {
     text: string;
   } | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+
+  // Notifications state
+  const [notifications, setNotifications] = useState<UserNotification[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationError, setNotificationError] = useState<string | null>(null);
+  const [notificationTypeFilter, setNotificationTypeFilter] =
+    useState<NotificationType | "ALL">("ALL");
+  const [notificationUnreadOnly, setNotificationUnreadOnly] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -152,6 +175,82 @@ export default function ProfilePage() {
       });
     } finally {
       setProfileLoading(false);
+    }
+  };
+
+  const fetchNotifications = useCallback(async () => {
+    setNotificationsLoading(true);
+    setNotificationError(null);
+    try {
+      const params = new URLSearchParams();
+      if (notificationTypeFilter !== "ALL") {
+        params.set("type", notificationTypeFilter);
+      }
+      if (notificationUnreadOnly) {
+        params.set("unread", "true");
+      }
+
+      const res = await fetch(
+        `/api/notifications${params.toString() ? `?${params.toString()}` : ""}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to load notifications");
+      }
+
+      const data = await res.json();
+      setNotifications(data);
+    } catch (error: any) {
+      setNotificationError(error.message || "Failed to load notifications");
+      setNotifications([]);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }, [notificationTypeFilter, notificationUnreadOnly]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const updateNotificationReadState = (id: number, read: boolean) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read } : n))
+    );
+  };
+
+  const handleMarkNotification = async (id: number, read: boolean) => {
+    try {
+      const res = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: [id], read }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update notification");
+      }
+
+      updateNotificationReadState(id, read);
+    } catch (error: any) {
+      setNotificationError(error.message || "Failed to update notification");
+    }
+  };
+
+  const handleDeleteNotification = async (id: number) => {
+    try {
+      const res = await fetch("/api/notifications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: [id] }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete notification");
+      }
+
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (error: any) {
+      setNotificationError(error.message || "Failed to delete notification");
     }
   };
 
@@ -436,6 +535,91 @@ export default function ProfilePage() {
           </form>
         </div>
       )}
+
+      <div className="settings-section" id="notifications">
+        <div className="settings-section-header settings-section-header--between">
+          <div>
+            <h2 className="settings-section-title">Notifications</h2>
+            <p className="settings-subtitle">Events related to your orders and warehouse updates</p>
+          </div>
+          <div className="notification-filters">
+            <select
+              className="settings-input notification-select"
+              value={notificationTypeFilter}
+              onChange={(e) =>
+                setNotificationTypeFilter(e.target.value as NotificationType | "ALL")
+              }
+            >
+              <option value="ALL">All types</option>
+              <option value="MESSAGE">General</option>
+              <option value="REPAIR_COMPLETED">Repair completed</option>
+              <option value="INSPECTION_SOON">Inspection</option>
+              <option value="PROMOTION">Promotion</option>
+            </select>
+            <label className="notification-checkbox">
+              <input
+                type="checkbox"
+                checked={notificationUnreadOnly}
+                onChange={(e) => setNotificationUnreadOnly(e.target.checked)}
+              />
+              Unread only
+            </label>
+            <button
+              type="button"
+              className="settings-btn settings-btn-ghost"
+              onClick={fetchNotifications}
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {notificationError && (
+          <div className="settings-alert settings-alert-error">{notificationError}</div>
+        )}
+
+        {notificationsLoading ? (
+          <p style={{ color: "#9ca3af" }}>Loading notifications...</p>
+        ) : notifications.length === 0 ? (
+          <p className="notification-empty">No notifications yet.</p>
+        ) : (
+          <div className="notification-list">
+            {notifications.map((n) => (
+              <div
+                key={n.id}
+                className={`notification-card ${n.read ? "read" : "unread"}`}
+              >
+                <div className="notification-card-header">
+                  <span className={`notification-pill notification-pill-${n.type.toLowerCase()}`}>
+                    {n.type.replace("_", " ")}
+                  </span>
+                  <span className="notification-date">
+                    {new Date(n.created_at).toLocaleString()}
+                  </span>
+                </div>
+                <p className="notification-title">{n.title}</p>
+                {n.message && <p className="notification-message">{n.message}</p>}
+                <div className="notification-actions">
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn-ghost"
+                    onClick={() => handleMarkNotification(n.id, !n.read)}
+                  >
+                    {n.read ? "Mark as unread" : "Mark as read"}
+                  </button>
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn-danger"
+                    onClick={() => handleDeleteNotification(n.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -189,6 +189,140 @@
   margin: 24px 0;
 }
 
+.settings-section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.settings-section-header--between {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.notification-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.notification-select {
+  min-width: 160px;
+}
+
+.notification-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+  font-size: 13px;
+}
+
+.settings-btn-ghost {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
+.settings-btn-ghost:hover {
+  background: var(--bg-card-soft);
+}
+
+.settings-btn-danger {
+  background: #b91c1c;
+}
+
+.settings-btn-danger:hover {
+  background: #991b1b;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.notification-card {
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.notification-card.unread {
+  border-color: var(--accent);
+}
+
+.notification-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.notification-pill-message {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f9fafb;
+}
+
+.notification-pill-repair_completed {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.notification-pill-inspection_soon {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.notification-pill-promotion {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fbbf24;
+}
+
+.notification-date {
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.notification-title {
+  margin: 8px 0 4px;
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.notification-message {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.notification-empty {
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
 @media (max-width: 768px) {
   .settings-container {
     padding: 16px;

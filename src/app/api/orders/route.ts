@@ -5,6 +5,8 @@ import {
   StatusServiceOrder,
 } from "@/types/serviceorders";
 import { NextRequest, NextResponse } from "next/server";
+import { notifyUsersSafe } from "@/lib/notifications";
+import { notification_type } from "@prisma/client";
 export async function GET() {
   try {
     const orders = await prisma.service_order.findMany({
@@ -93,11 +95,35 @@ export async function POST(req: Request) {
       },
       include: {
         vehicle: true,
+        customer: { select: { user_id: true } },
+        employees: { select: { user_id: true } },
       },
     });
 
-    const mechanic = await prisma.users.findUnique({
-      where: { id: mechanicId },
+    const mechanicUserId =
+      newOrder.employees?.user_id || Number(mechanicId) || null;
+
+    const mechanic = mechanicUserId
+      ? await prisma.users.findUnique({ where: { id: mechanicUserId } })
+      : null;
+
+    const adminUsers = await prisma.users.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true },
+    });
+
+    const targetUserIds = [
+      newOrder.customer?.user_id || null,
+      mechanicUserId,
+      ...adminUsers.map((a) => a.id),
+    ];
+
+    await notifyUsersSafe(targetUserIds, {
+      type: notification_type.MESSAGE,
+      title: `New service order ${newOrder.order_number}`,
+      message: `${newOrder.issue || "Service"} assigned. Priority: ${
+        newOrder.priority
+      }.`,
     });
 
     const formattedOrder: ServiceOrders = {

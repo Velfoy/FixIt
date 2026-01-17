@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { notifyUsersSafe } from "@/lib/notifications";
+import { notification_type } from "@prisma/client";
 
 interface RouteParams {
   params: Promise<{
@@ -73,6 +75,17 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         part: part,
       });
     }
+
+    const warehouseUsers = await prisma.users.findMany({
+      where: { role: "WAREHOUSE" },
+      select: { id: true },
+    });
+
+    await notifyUsersSafe(warehouseUsers.map((u) => u.id), {
+      type: notification_type.MESSAGE,
+      title: `Warehouse deduction for order ${orderId}`,
+      message: `Deducted ${deductedParts.length} part(s) from stock`,
+    });
 
     return NextResponse.json({
       message: `Successfully deducted ${deductedParts.length} part(s) from warehouse`,

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import type { Part } from "@/types/part";
+import { notifyUsersSafe } from "@/lib/notifications";
+import { notification_type } from "@prisma/client";
 export async function GET() {
   try {
     const parts = await prisma.part.findMany({
@@ -46,6 +48,17 @@ export async function POST(req: Request) {
     const createNewPart = await prisma.part.create({
       data: data,
     });
+
+    const warehouseUsers = await prisma.users.findMany({
+      where: { role: "WAREHOUSE" },
+      select: { id: true },
+    });
+
+    await notifyUsersSafe(warehouseUsers.map((u) => u.id), {
+      type: notification_type.MESSAGE,
+      title: `New part added: ${name}`,
+      message: `Qty: ${quantity}, Min: ${min_quantity}`,
+    });
     return NextResponse.json(createNewPart, { status: 201 });
   } catch (error) {
     console.error("POST /api/warehouse error:", error);
@@ -67,6 +80,11 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Invalid part ID" }, { status: 400 });
     }
 
+    const existingPart = await prisma.part.findUnique({
+      where: { id: partId },
+      select: { quantity: true, name: true },
+    });
+
     const updatedPart = await prisma.part
       .update({
         where: { id: partId },
@@ -86,6 +104,25 @@ export async function PATCH(req: Request) {
 
     if (!updatedPart) {
       return NextResponse.json({ error: "Part not found" }, { status: 404 });
+    }
+
+    if (updatedPart && existingPart && quantity !== undefined) {
+      const delta = Number(quantity) - Number(existingPart.quantity ?? 0);
+      if (delta !== 0) {
+        const warehouseUsers = await prisma.users.findMany({
+          where: { role: "WAREHOUSE" },
+          select: { id: true },
+        });
+
+        await notifyUsersSafe(warehouseUsers.map((u) => u.id), {
+          type: notification_type.MESSAGE,
+          title:
+            delta > 0
+              ? `Restock: ${existingPart.name}`
+              : `Deduction: ${existingPart.name}`,
+          message: `Change: ${delta > 0 ? "+" : ""}${delta} (new qty: ${quantity})`,
+        });
+      }
     }
 
     return NextResponse.json(updatedPart, { status: 200 });

@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { StatusServiceOrder } from "@/types/serviceorders";
 import getCachedSession from "@/lib/session";
+import { notifyUsersSafe } from "@/lib/notifications";
+import { notification_type } from "@prisma/client";
 
 function mapOrder(
   o: any,
@@ -124,6 +126,16 @@ export async function PUT(req: NextRequest, context: any) {
       paidAmount,
     } = body;
 
+    const existing = await prisma.service_order.findUnique({
+      where: { id },
+      select: {
+        status: true,
+        order_number: true,
+        customer: { select: { user_id: true } },
+        employees: { select: { user_id: true } },
+      },
+    });
+
     // If payment status is being updated
     if (paymentStatus === "PAID") {
       // Find or create invoice for this order
@@ -186,8 +198,41 @@ export async function PUT(req: NextRequest, context: any) {
         employees: { include: { users: true } },
         service_task: { include: { employees: { include: { users: true } } } },
         payment: true,
+        customer: { select: { user_id: true } },
       },
     });
+
+    const mechanicUserId = updated.employees?.user_id || null;
+    const customerUserId = updated.customer?.user_id || null;
+    const adminUsers = await prisma.users.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true },
+    });
+
+    if (status && status !== existing?.status) {
+      await notifyUsersSafe(
+        [customerUserId, mechanicUserId, ...adminUsers.map((a) => a.id)],
+        {
+          type:
+            status === "COMPLETED"
+              ? notification_type.REPAIR_COMPLETED
+              : notification_type.MESSAGE,
+          title: `Order ${existing?.order_number || id} status updated`,
+          message: `New status: ${status}`,
+        }
+      );
+    }
+
+    if (paymentStatus === "PAID") {
+      await notifyUsersSafe(
+        [customerUserId, ...adminUsers.map((a) => a.id)],
+        {
+          type: notification_type.MESSAGE,
+          title: `Order ${existing?.order_number || id} payment received`,
+          message: `Amount: ${paidAmount || 0}`,
+        }
+      );
+    }
 
     return NextResponse.json(
       mapOrder(updated, sessionUserId, sessionEmployeeId),
