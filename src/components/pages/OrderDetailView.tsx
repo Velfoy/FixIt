@@ -37,7 +37,7 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
 );
 
 interface OrderDetailViewProps {
@@ -51,7 +51,7 @@ export function OrderDetailView({
 }: OrderDetailViewProps) {
   const router = useRouter();
   const [serviceOrder, setServiceOrder] = useState<Order | null>(
-    dataServiceOrder ?? null
+    dataServiceOrder ?? null,
   );
   const [showEditOrder, setShowEditOrder] = useState(false);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
@@ -161,11 +161,11 @@ export function OrderDetailView({
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<number | null>(
-    null
+    null,
   );
   const [showTaskStatusDialog, setShowTaskStatusDialog] = useState(false);
   const [taskToChangeStatus, setTaskToChangeStatus] = useState<any | null>(
-    null
+    null,
   );
 
   const toNumber = (val: any): number => {
@@ -191,7 +191,7 @@ export function OrderDetailView({
             id: item.id,
             description: item.name,
             cost: parseFloat(item.cost.toString()),
-          }))
+          })),
         );
       } catch (err) {
         console.warn("Failed to fetch invoice items:", err);
@@ -278,7 +278,7 @@ export function OrderDetailView({
       }
 
       setServiceOrder((prev) =>
-        prev ? { ...prev, task: [...(prev.task || []), created] } : prev
+        prev ? { ...prev, task: [...(prev.task || []), created] } : prev,
       );
       setShowAddTask(false);
     } catch (err) {
@@ -306,7 +306,7 @@ export function OrderDetailView({
               `${m.first_name || ""}`.trim() ===
                 `${task.mechanicFirstName || ""}`.trim() &&
               `${m.last_name || ""}`.trim() ===
-                `${task.mechanicLastName || ""}`.trim()
+                `${task.mechanicLastName || ""}`.trim(),
           );
           if (found) setTaskMechanicId(found.id);
         }
@@ -336,14 +336,14 @@ export function OrderDetailView({
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
-          }
+          },
         );
         if (!res.ok) throw new Error(`API returned ${res.status}`);
         updated = await res.json();
       } catch (apiErr) {
         console.warn(
           "Task update API failed, falling back to local update:",
-          apiErr
+          apiErr,
         );
         const selectedMechanic =
           mechanics.find((m) => m.id === taskMechanicId) || {};
@@ -366,7 +366,7 @@ export function OrderDetailView({
       setServiceOrder((prev) => {
         if (!prev) return prev;
         const updatedTasks = (prev.task || []).map((t: any) =>
-          t.id === editingTask.id ? updated : t
+          t.id === editingTask.id ? updated : t,
         );
         return { ...prev, task: updatedTasks };
       });
@@ -395,7 +395,7 @@ export function OrderDetailView({
           `/api/orders/${serviceOrder.id}/tasks/${taskToDelete.id}`,
           {
             method: "DELETE",
-          }
+          },
         );
         if (!res.ok) throw new Error(`API returned ${res.status}`);
       } catch (apiErr) {
@@ -405,7 +405,7 @@ export function OrderDetailView({
       setServiceOrder((prev) => {
         if (!prev) return prev;
         const updated = (prev.task || []).filter(
-          (t: any) => t.id !== taskToDelete.id
+          (t: any) => t.id !== taskToDelete.id,
         );
         return { ...prev, task: updated };
       });
@@ -436,7 +436,7 @@ export function OrderDetailView({
             priority: taskToChangeStatus.priority,
             status: newStatus,
           }),
-        }
+        },
       );
       if (!res.ok) throw new Error(`API returned ${res.status}`);
       const updated = await res.json();
@@ -444,7 +444,7 @@ export function OrderDetailView({
       setServiceOrder((prev) => {
         if (!prev) return prev;
         const updatedTasks = (prev.task || []).map((t: any) =>
-          t.id === taskToChangeStatus.id ? updated : t
+          t.id === taskToChangeStatus.id ? updated : t,
         );
         return { ...prev, task: updatedTasks };
       });
@@ -573,7 +573,7 @@ export function OrderDetailView({
 
     if (newStatus !== serviceOrder.status) {
       setServiceOrder((prev) =>
-        prev ? { ...prev, status: newStatus as any } : prev
+        prev ? { ...prev, status: newStatus as any } : prev,
       );
       (async () => {
         try {
@@ -767,8 +767,8 @@ export function OrderDetailView({
     try {
       const res = await fetch(
         `/api/warehouse/parts?search=${encodeURIComponent(
-          partsSearchTerm
-        )}&limit=50`
+          partsSearchTerm,
+        )}&limit=50`,
       );
       if (!res.ok) throw new Error(`API returned ${res.status}`);
       const parts = await res.json();
@@ -836,7 +836,7 @@ export function OrderDetailView({
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
 
       if (!res.ok) {
@@ -860,7 +860,7 @@ export function OrderDetailView({
 
     try {
       console.log(
-        `Toggling part ${partId} from ${currentValue} to ${!currentValue}`
+        `Toggling part ${partId} from ${currentValue} to ${!currentValue}`,
       );
       const res = await fetch(
         `/api/orders/${serviceOrder.id}/parts/${partId}`,
@@ -870,7 +870,7 @@ export function OrderDetailView({
           body: JSON.stringify({
             deductFromWarehouse: !currentValue,
           }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -881,19 +881,19 @@ export function OrderDetailView({
       const response = await res.json();
       console.log(
         "Toggle response - Old order total:",
-        serviceOrder.total_cost
+        serviceOrder.total_cost,
       );
       console.log(
         "Toggle response - New order total:",
-        response.order.total_cost
+        response.order.total_cost,
       );
       console.log("Full response:", response);
 
       setServiceOrder(transformOrder(response.order));
       setOrderParts((prev) =>
         prev.map((p) =>
-          p.id === partId ? { ...p, deductFromWarehouse: !currentValue } : p
-        )
+          p.id === partId ? { ...p, deductFromWarehouse: !currentValue } : p,
+        ),
       );
     } catch (err: any) {
       console.error("Error updating part:", err);
@@ -924,8 +924,8 @@ export function OrderDetailView({
         prev.map((p) =>
           deductedIds.includes(p.id)
             ? { ...p, warehouseDeductedAt: new Date().toISOString() }
-            : p
-        )
+            : p,
+        ),
       );
       alert(result.message || "Parts deducted from warehouse successfully!");
     } catch (err: any) {
@@ -950,7 +950,7 @@ export function OrderDetailView({
     setLoadingComments(true);
     try {
       const res = await fetch(
-        `/api/orders/${serviceOrder.id}/tasks/${taskId}/comments`
+        `/api/orders/${serviceOrder.id}/tasks/${taskId}/comments`,
       );
       if (!res.ok) throw new Error("Failed to fetch comments");
       const comments = await res.json();
@@ -982,7 +982,7 @@ export function OrderDetailView({
         `/api/orders/${serviceOrder.id}/tasks/${selectedTask.id}/comments?commentId=${commentId}`,
         {
           method: "DELETE",
-        }
+        },
       );
 
       if (!res.ok) {
@@ -1016,7 +1016,7 @@ export function OrderDetailView({
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       if (!res.ok) {
@@ -1055,7 +1055,7 @@ export function OrderDetailView({
             title: commentTitle || null,
             documentIds: uploadedFiles.map((f) => f.id),
           }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -1280,8 +1280,8 @@ export function OrderDetailView({
                 task.mechanic_id !== undefined && task.mechanic_id !== null
                   ? Number(task.mechanic_id)
                   : task.mechanicId !== undefined && task.mechanicId !== null
-                  ? Number(task.mechanicId)
-                  : null;
+                    ? Number(task.mechanicId)
+                    : null;
 
               if (isMechanic) {
                 const matchesByUser =
@@ -1482,7 +1482,7 @@ export function OrderDetailView({
                           part.priceAtTime || part.price_at_time || 0;
                         const qty = part.quantity || 1;
                         return `$${(toNumber(price) / toNumber(qty)).toFixed(
-                          2
+                          2,
                         )}`;
                       },
                     },
@@ -1506,7 +1506,7 @@ export function OrderDetailView({
                           onChange={() =>
                             handleToggleDeduct(
                               part.id,
-                              part.deductFromWarehouse
+                              part.deductFromWarehouse,
                             )
                           }
                           disabled={
@@ -1584,7 +1584,7 @@ export function OrderDetailView({
                   {session?.user?.role !== "CLIENT" && (
                     <>
                       {orderParts.some(
-                        (p) => p.deductFromWarehouse && !p.warehouseDeductedAt
+                        (p) => p.deductFromWarehouse && !p.warehouseDeductedAt,
                       ) && (
                         <Button
                           onClick={handleDeductPartsFromWarehouse}
@@ -1594,7 +1594,7 @@ export function OrderDetailView({
                             isSubmitting ||
                             !orderParts.some(
                               (p) =>
-                                p.deductFromWarehouse && !p.warehouseDeductedAt
+                                p.deductFromWarehouse && !p.warehouseDeductedAt,
                             )
                           }
                         >
@@ -1669,17 +1669,17 @@ export function OrderDetailView({
 
                                   const res = await fetch(
                                     `/api/orders/${serviceOrder.id}/items/${item.id}`,
-                                    { method: "DELETE" }
+                                    { method: "DELETE" },
                                   );
 
                                   if (!res.ok) {
                                     const errorText = await res.text();
                                     console.error(
                                       "Delete API Error:",
-                                      errorText
+                                      errorText,
                                     );
                                     throw new Error(
-                                      `API returned ${res.status}`
+                                      `API returned ${res.status}`,
                                     );
                                   }
 
@@ -1687,7 +1687,7 @@ export function OrderDetailView({
                                   console.log("Delete response:", response);
 
                                   setInvoiceItems((prev) =>
-                                    prev.filter((i) => i.id !== item.id)
+                                    prev.filter((i) => i.id !== item.id),
                                   );
 
                                   console.log("Item deleted successfully");
@@ -1722,7 +1722,7 @@ export function OrderDetailView({
                     toNumber(serviceOrder?.total_cost || 0) +
                     invoiceItems.reduce(
                       (sum, item) => sum + Number(item.cost || 0),
-                      0
+                      0,
                     )
                   ).toFixed(2)}
                 </span>
@@ -2081,7 +2081,7 @@ export function OrderDetailView({
                           method: "PUT",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify(paymentData),
-                        }
+                        },
                       );
 
                       if (res.ok) {
@@ -2704,7 +2704,7 @@ export function OrderDetailView({
                                     day: "numeric",
                                     hour: "2-digit",
                                     minute: "2-digit",
-                                  }
+                                  },
                                 )}
                               </span>
                               {(comment.employees?.users?.email ||
@@ -2757,10 +2757,20 @@ export function OrderDetailView({
                                         className="order-comment-video-player"
                                         poster={doc.thumbnail_url || undefined}
                                       >
-                                        <source src={doc.url} type="video/mp4" />
-                                        <source src={doc.url} type="video/webm" />
-                                        <source src={doc.url} type="video/quicktime" />
-                                        Your browser does not support the video tag.
+                                        <source
+                                          src={doc.url}
+                                          type="video/mp4"
+                                        />
+                                        <source
+                                          src={doc.url}
+                                          type="video/webm"
+                                        />
+                                        <source
+                                          src={doc.url}
+                                          type="video/quicktime"
+                                        />
+                                        Your browser does not support the video
+                                        tag.
                                       </video>
                                       <p className="order-comment-video-filename">
                                         {doc.filename}
@@ -2969,7 +2979,7 @@ function StripePaymentForm({
       onSuccess();
     } else {
       setErrorMessage(
-        "Payment was declined. Please try again with a different card."
+        "Payment was declined. Please try again with a different card.",
       );
       setIsProcessing(false);
     }
