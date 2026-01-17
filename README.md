@@ -29,20 +29,17 @@ In the practical part, a web application supporting automotive workshop manageme
 ---
 
 ### Demo
-
-Each thumbnail opens the role demo on YouTube.
-
-- Warehouse
+ #### Warehouse
   [![Warehouse demo](https://img.youtube.com/vi/BeaRlvya7OA/0.jpg)](https://youtu.be/BeaRlvya7OA)
 
-- Mechanic
+#### Mechanic
   [![Mechanic demo](https://img.youtube.com/vi/xkfuUDAbLDA/0.jpg)](https://youtu.be/xkfuUDAbLDA)
 
-- Client
+#### Client
   [![Client demo](https://img.youtube.com/vi/Brmvh5GDzDM/0.jpg)](https://youtu.be/Brmvh5GDzDM)
 
-- Admin
-  [![Admin demo](https://img.youtube.com/vi/7qiWTHk5Ht4/0.jpg)](https://youtu.be/7qiWTHk5Ht4)
+#### Admin
+  [![Admin demo](https://img.youtube.com/vi/wlpSTByOFcY/0.jpg)](https://youtu.be/wlpSTByOFcY)
 
 ### Highlights
 
