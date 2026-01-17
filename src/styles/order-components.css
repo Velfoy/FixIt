@@ -399,6 +399,105 @@
   white-space: nowrap;
 }
 
+/* Video Player Styles */
+.order-comment-video-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.08);
+  border-radius: 8px;
+  border: 2px solid #667eea;
+}
+
+.order-comment-video-player {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background-color: #000;
+  outline: none;
+}
+
+.order-comment-video-player::-webkit-media-controls-panel {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.order-comment-video-filename {
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* Photo Styles */
+.order-comment-photo-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  border: 1px solid #667eea;
+}
+
+.order-comment-photo-link {
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.order-comment-photo-link:hover {
+  transform: scale(1.02);
+}
+
+.order-comment-photo {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.order-comment-photo-filename {
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .order-comment-video-player,
+  .order-comment-photo {
+    max-width: 100%;
+  }
+
+  .order-comment-video-container,
+  .order-comment-photo-container {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .order-comment-video-container {
+    max-width: 100%;
+  }
+
+  .order-comment-video-player {
+    max-width: 100%;
+  }
+
+  .order-comment-photo {
+    max-width: 100%;
+  }
+}
+
 /* Warehouse Parts Section Styles */
 .parts-section-padding {
   padding-top: 15px;

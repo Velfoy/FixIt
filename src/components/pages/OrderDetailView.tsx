@@ -2743,22 +2743,70 @@ export function OrderDetailView({
                               Attachments:
                             </p>
                             <div className="order-comment-attachments-list">
-                              {comment.document.map((doc: any) => (
-                                <a
-                                  key={doc.id}
-                                  href={doc.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="order-comment-attachment"
-                                >
-                                  {doc.type === "PHOTO" && "📷"}
-                                  {doc.type === "VIDEO" && "🎥"}
-                                  {doc.type === "DOCUMENT" && "📄"}
-                                  <span className="order-comment-attachment-label">
-                                    {doc.filename}
-                                  </span>
-                                </a>
-                              ))}
+                              {comment.document.map((doc: any) => {
+                                if (doc.type === "VIDEO") {
+                                  return (
+                                    <div
+                                      key={doc.id}
+                                      className="order-comment-video-container"
+                                    >
+                                      <video
+                                        width="300"
+                                        height="auto"
+                                        controls
+                                        className="order-comment-video-player"
+                                        poster={doc.thumbnail_url || undefined}
+                                      >
+                                        <source src={doc.url} type="video/mp4" />
+                                        <source src={doc.url} type="video/webm" />
+                                        <source src={doc.url} type="video/quicktime" />
+                                        Your browser does not support the video tag.
+                                      </video>
+                                      <p className="order-comment-video-filename">
+                                        {doc.filename}
+                                      </p>
+                                    </div>
+                                  );
+                                } else if (doc.type === "PHOTO") {
+                                  return (
+                                    <div
+                                      key={doc.id}
+                                      className="order-comment-photo-container"
+                                    >
+                                      <a
+                                        href={doc.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="order-comment-photo-link"
+                                      >
+                                        <img
+                                          src={doc.url}
+                                          alt={doc.filename}
+                                          className="order-comment-photo"
+                                        />
+                                      </a>
+                                      <p className="order-comment-photo-filename">
+                                        {doc.filename}
+                                      </p>
+                                    </div>
+                                  );
+                                } else {
+                                  return (
+                                    <a
+                                      key={doc.id}
+                                      href={doc.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="order-comment-attachment"
+                                    >
+                                      📄
+                                      <span className="order-comment-attachment-label">
+                                        {doc.filename}
+                                      </span>
+                                    </a>
+                                  );
+                                }
+                              })}
                             </div>
                           </div>
                         )}

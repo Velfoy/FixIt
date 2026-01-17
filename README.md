@@ -2,6 +2,32 @@
 
 Role-based workshop management platform built with Next.js 16, Prisma, and NextAuth. It covers the full service lifecycle: intake, tasking, parts, invoicing, payments, and customer communication across multiple branches.
 
+---
+
+### 1.2. Summary of Diploma
+
+**Streszczenie**
+
+Celem pracy było utworzenie i opisanie internetowej aplikacji wspomagającej zarządzanie warsztatem samochodowym oraz przedstawienie problematyki związanej z tworzeniem nowoczesnych aplikacji webowych z wykorzystaniem frameworka Next.js.
+
+W części teoretycznej zostały poruszone tematy dotyczące użytych technologii i narzędzi. Opisano w niej zarys frameworka React oraz Next.js z wyszczególnieniem App Router i Server Components. Dalej zostały przedstawione sposoby przetwarzania, zarządzania i przechowywania danych za pomocą ORM Prisma oraz bazy danych PostgreSQL. Przedstawiono też zalety korzystania z mechanizmu NextAuth do uwierzytelniania i autoryzacji użytkowników. W pracy dużą uwagę zwrócono na problematykę związaną z bezpieczeństwem aplikacji webowych. Zostały w niej przedstawione zagrożenia, nad którymi należy się skupić projektując takie aplikacje w celu zabezpieczenia się przed nimi. Omówiono również integrację z systemem płatności Stripe oraz zarządzanie rolami użytkowników w aplikacji.
+
+W części praktycznej pracy zaprojektowano i wykonano internetową aplikację wspomagającą zarządzanie warsztatem samochodowym, której zadaniem jest obsługa pełnego cyklu serwisowego: przyjmowanie zleceń, zarządzanie zadaniami, kontrola magazynu części, fakturowanie, realizacja płatności oraz komunikacja z klientami w wielu oddziałach. Aplikacja została wykonana przy użyciu technologii Next.js 16, TypeScript, Prisma ORM oraz bazy danych PostgreSQL. System umożliwia zarządzanie różnymi rolami użytkowników (administrator, mechanik, magazynier, recepcjonista, klient), śledzenie statusu napraw, zarządzanie zapasami części oraz generowanie faktur i przyjmowanie płatności online.
+
+**Słowa kluczowe:** aplikacje webowe, Next.js, zarządzanie warsztatem samochodowym, autoryzacja oparta na rolach, system zarządzania serwisem
+
+### Summary
+
+The main goal was establishment and description of a web application supporting automotive workshop management as well as exposition of issues related to creating modern web applications using the Next.js framework.
+
+The theoretical part of thesis raises matters concerning technologies and methods used to achieve the major aim. In this part outline of the React framework and Next.js has been depicted detailing App Router and Server Components. Later, there have been characterized ways of processing, managing and storing data by means of Prisma ORM and PostgreSQL database. Moreover, this part contains the advantages of using the NextAuth mechanism for user authentication and authorization. However, in thesis much interest has been also given to problems connected with the security of web applications. There were presented threats which should be taken into consideration when designing such applications as well as methods protecting from them. The integration with Stripe payment system and role-based user management were also discussed.
+
+In the practical part, a web application supporting automotive workshop management has been designed and implemented. Its purpose is to handle the complete service lifecycle: order intake, task management, parts inventory control, invoicing, payment processing, and customer communication across multiple branches. The application was built using Next.js 16, TypeScript, Prisma ORM, and PostgreSQL database. The system enables management of different user roles (admin, mechanic, warehouse worker, receptionist, client), tracking repair status, managing parts inventory, and generating invoices with online payment processing.
+
+**Keywords:** web applications, Next.js, automotive workshop management, role-based authorization, service management system
+
+---
+
 ### Demo
 
 Each thumbnail opens the role demo on YouTube.
